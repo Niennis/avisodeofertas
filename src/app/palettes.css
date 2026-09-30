@@ -1,0 +1,307 @@
+/*
+ * Paletas de la interfaz, generadas con la misma estructura: formas, colores claros y oscuros.
+ * - La paleta se elige en "Mi cuenta" y se aplica con data-palette en <html>
+ *   (o en cualquier elemento, como las vistas previas).
+ * - El modo oscuro se activa con data-theme="dark" o, si no hay elección, con la preferencia del sistema.
+ * - "sobria" también es la base de :root, para cuando no hay paleta elegida.
+ */
+
+/* ---------- Sobria (predeterminada) ---------- */
+
+:root,
+[data-palette="sobria"] {
+  --radius-card: 12px;
+  --radius-control: 8px;
+  --radius-btn: 8px;
+  --radius-tag: 6px;
+  --border-w: 1.5px;
+  --shadow-card: none;
+  --shadow-btn: none;
+  --btn-border: none;
+  --tag-filter: none;
+  --tag-stitch: none;
+  --font-body: var(--font-schibsted);
+  --font-display: var(--font-schibsted);
+  color-scheme: light;
+  --bg: #eef1ec;
+  --surface: #ffffff;
+  --ink: #1e2a3a;
+  --muted: #5f6975;
+  --line: #d5dbd3;
+  --card-border: #d5dbd3;
+  --sale: #c8285e;
+  --on-sale: #ffffff;
+  --sale-soft: #fbe7ee;
+  --target: #2f7d78;
+  --target-soft: #e2f1ef;
+  --danger: #b3261e;
+  --btn-bg: #1e2a3a;
+  --btn-ink: #eef1ec;
+}
+
+[data-theme="dark"],
+[data-theme="dark"][data-palette="sobria"],
+[data-theme="dark"] [data-palette="sobria"] {
+  color-scheme: dark;
+  --bg: #151b22;
+  --surface: #1d2530;
+  --ink: #e7ebf0;
+  --muted: #9aa5b1;
+  --line: #2f3a47;
+  --card-border: #2f3a47;
+  --sale: #f06a96;
+  --on-sale: #151b22;
+  --sale-soft: #3a1f2a;
+  --target: #5fbab3;
+  --target-soft: #1b3533;
+  --danger: #f2887f;
+  --btn-bg: #e7ebf0;
+  --btn-ink: #151b22;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]),
+  :root:not([data-theme="light"])[data-palette="sobria"],
+  :root:not([data-theme="light"]) [data-palette="sobria"] {
+    color-scheme: dark;
+    --bg: #151b22;
+    --surface: #1d2530;
+    --ink: #e7ebf0;
+    --muted: #9aa5b1;
+    --line: #2f3a47;
+    --card-border: #2f3a47;
+    --sale: #f06a96;
+    --on-sale: #151b22;
+    --sale-soft: #3a1f2a;
+    --target: #5fbab3;
+    --target-soft: #1b3533;
+    --danger: #f2887f;
+    --btn-bg: #e7ebf0;
+    --btn-ink: #151b22;
+  }
+}
+
+/* ---------- Caramelo: pastel, redondeada, estilo sticker ---------- */
+
+[data-palette="caramelo"] {
+  --radius-card: 22px;
+  --radius-control: 14px;
+  --radius-btn: 999px;
+  --radius-tag: 10px;
+  --border-w: 2px;
+  --shadow-card: 4px 4px 0 var(--ink-shadow);
+  --shadow-btn: 3px 3px 0 var(--ink-shadow);
+  --btn-border: 2px solid var(--ink-shadow);
+  --tag-filter: drop-shadow(2px 2px 0 var(--ink-shadow));
+  --tag-stitch: none;
+  --font-body: var(--font-nunito);
+  --font-display: var(--font-fredoka);
+  color-scheme: light;
+  --bg: #f5f0ff;
+  --surface: #ffffff;
+  --ink: #2b2146;
+  --muted: #6e6391;
+  --line: #dcd2f5;
+  --card-border: #2b2146;
+  --ink-shadow: #2b2146;
+  --sale: #ff6fae;
+  --on-sale: #2b2146;
+  --sale-soft: #ffe1ef;
+  --target: #1a9e82;
+  --target-soft: #d5f5ec;
+  --danger: #d6334c;
+  --btn-bg: #ffd35c;
+  --btn-ink: #2b2146;
+}
+
+[data-theme="dark"][data-palette="caramelo"],
+[data-theme="dark"] [data-palette="caramelo"] {
+  color-scheme: dark;
+  --bg: #1d1733;
+  --surface: #2a2247;
+  --ink: #f6f1ff;
+  --muted: #b9aee0;
+  --line: #43386b;
+  --card-border: #0f0b1f;
+  --ink-shadow: #0f0b1f;
+  --sale: #ff85bd;
+  --on-sale: #1d1733;
+  --sale-soft: #4a2440;
+  --target: #5fe3c2;
+  --target-soft: #1c3d3a;
+  --danger: #ff8a96;
+  --btn-bg: #ffd35c;
+  --btn-ink: #1d1733;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"])[data-palette="caramelo"],
+  :root:not([data-theme="light"]) [data-palette="caramelo"] {
+    color-scheme: dark;
+    --bg: #1d1733;
+    --surface: #2a2247;
+    --ink: #f6f1ff;
+    --muted: #b9aee0;
+    --line: #43386b;
+    --card-border: #0f0b1f;
+    --ink-shadow: #0f0b1f;
+    --sale: #ff85bd;
+    --on-sale: #1d1733;
+    --sale-soft: #4a2440;
+    --target: #5fe3c2;
+    --target-soft: #1c3d3a;
+    --danger: #ff8a96;
+    --btn-bg: #ffd35c;
+    --btn-ink: #1d1733;
+  }
+}
+
+/* ---------- Eléctrico: neón con brillo ---------- */
+
+[data-palette="electrico"] {
+  --radius-card: 16px;
+  --radius-control: 12px;
+  --radius-btn: 12px;
+  --radius-tag: 6px;
+  --border-w: 1px;
+  --shadow-card: none;
+  --btn-border: none;
+  --tag-stitch: none;
+  --font-body: var(--font-sora);
+  --font-display: var(--font-unbounded);
+  color-scheme: light;
+  --bg: #f3f2fa;
+  --surface: #ffffff;
+  --ink: #15132e;
+  --muted: #5e5b85;
+  --line: #dddbf0;
+  --card-border: #dddbf0;
+  --sale: #e0007a;
+  --on-sale: #ffffff;
+  --sale-soft: #ffe0f0;
+  --target: #0086a6;
+  --target-soft: #ddf5fb;
+  --danger: #d6284b;
+  --btn-bg: #15132e;
+  --btn-ink: #c6ff3d;
+  --shadow-btn: 0 6px 18px -6px rgb(21 19 46 / 0.45);
+  --tag-filter: drop-shadow(0 4px 10px rgb(224 0 122 / 0.35));
+}
+
+[data-theme="dark"][data-palette="electrico"],
+[data-theme="dark"] [data-palette="electrico"] {
+  color-scheme: dark;
+  --bg: #0d0c1d;
+  --surface: #16152e;
+  --ink: #f1eeff;
+  --muted: #9c98c8;
+  --line: #2b2952;
+  --card-border: #2b2952;
+  --sale: #ff2e93;
+  --on-sale: #ffffff;
+  --sale-soft: #3b1030;
+  --target: #00e0ff;
+  --target-soft: #0a2e3d;
+  --danger: #ff5c7a;
+  --btn-bg: #c6ff3d;
+  --btn-ink: #0d0c1d;
+  --shadow-btn: 0 0 22px rgb(198 255 61 / 0.35);
+  --tag-filter: drop-shadow(0 0 10px rgb(255 46 147 / 0.65));
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"])[data-palette="electrico"],
+  :root:not([data-theme="light"]) [data-palette="electrico"] {
+    color-scheme: dark;
+    --bg: #0d0c1d;
+    --surface: #16152e;
+    --ink: #f1eeff;
+    --muted: #9c98c8;
+    --line: #2b2952;
+    --card-border: #2b2952;
+    --sale: #ff2e93;
+    --on-sale: #ffffff;
+    --sale-soft: #3b1030;
+    --target: #00e0ff;
+    --target-soft: #0a2e3d;
+    --danger: #ff5c7a;
+    --btn-bg: #c6ff3d;
+    --btn-ink: #0d0c1d;
+    --shadow-btn: 0 0 22px rgb(198 255 61 / 0.35);
+    --tag-filter: drop-shadow(0 0 10px rgb(255 46 147 / 0.65));
+  }
+}
+
+/* ---------- Jardín: cottagecore, lino y musgo ---------- */
+
+[data-palette="jardin"] {
+  --radius-card: 14px;
+  --radius-control: 10px;
+  --radius-btn: 999px;
+  --radius-tag: 4px;
+  --border-w: 1px;
+  --shadow-btn: none;
+  --btn-border: none;
+  --tag-filter: none;
+  --tag-stitch: 1px dashed color-mix(in srgb, var(--on-sale) 60%, transparent);
+  --font-body: var(--font-nunito-sans);
+  --font-display: var(--font-fraunces);
+  color-scheme: light;
+  --bg: #f1ece0;
+  --surface: #fbf8f1;
+  --ink: #2e3a2b;
+  --muted: #676b58;
+  --line: #ddd5c3;
+  --card-border: #ddd5c3;
+  --sale: #b24a63;
+  --on-sale: #fbf8f1;
+  --sale-soft: #f4dde2;
+  --target: #4f744a;
+  --target-soft: #e2ebd9;
+  --danger: #a8322d;
+  --btn-bg: #2e3a2b;
+  --btn-ink: #f1ece0;
+  --shadow-card: 0 10px 24px -16px rgb(46 58 43 / 0.35);
+}
+
+[data-theme="dark"][data-palette="jardin"],
+[data-theme="dark"] [data-palette="jardin"] {
+  color-scheme: dark;
+  --bg: #1c211a;
+  --surface: #262c23;
+  --ink: #eee7d6;
+  --muted: #aba78f;
+  --line: #394134;
+  --card-border: #394134;
+  --sale: #e2879b;
+  --on-sale: #1c211a;
+  --sale-soft: #452730;
+  --target: #9dc28f;
+  --target-soft: #29361f;
+  --danger: #f08b7f;
+  --btn-bg: #eee7d6;
+  --btn-ink: #1c211a;
+  --shadow-card: 0 10px 24px -16px rgb(0 0 0 / 0.6);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"])[data-palette="jardin"],
+  :root:not([data-theme="light"]) [data-palette="jardin"] {
+    color-scheme: dark;
+    --bg: #1c211a;
+    --surface: #262c23;
+    --ink: #eee7d6;
+    --muted: #aba78f;
+    --line: #394134;
+    --card-border: #394134;
+    --sale: #e2879b;
+    --on-sale: #1c211a;
+    --sale-soft: #452730;
+    --target: #9dc28f;
+    --target-soft: #29361f;
+    --danger: #f08b7f;
+    --btn-bg: #eee7d6;
+    --btn-ink: #1c211a;
+    --shadow-card: 0 10px 24px -16px rgb(0 0 0 / 0.6);
+  }
+}

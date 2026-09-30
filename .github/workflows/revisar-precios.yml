@@ -1,0 +1,20 @@
+# Segunda revisión diaria (el plan gratuito de Vercel permite un solo cron al día).
+# Configura en GitHub → Settings → Secrets and variables → Actions:
+#   APP_URL      → https://tu-app.vercel.app
+#   CRON_SECRET  → el mismo valor que en Vercel
+name: Revisar precios
+
+on:
+  schedule:
+    - cron: "0 23 * * *" # 20:00 en Chile (horario de verano: 19:00/20:00 según la época)
+  workflow_dispatch:
+
+jobs:
+  revisar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Llamar al endpoint de revisión
+        run: |
+          curl --fail-with-body --max-time 300 \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.APP_URL }}/api/cron/revisar-precios"

@@ -1,0 +1,4 @@
+# Dependencias autorizadas a ejecutar scripts de instalación (pnpm los bloquea por defecto).
+onlyBuiltDependencies:
+  - esbuild
+  - unrs-resolver

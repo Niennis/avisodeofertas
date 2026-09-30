@@ -1,0 +1,23 @@
+import type { AlertReason } from "@/core/domain/alert-policy";
+import type { StoreFailures } from "@/core/domain/failures";
+
+export interface Deal {
+  productId: string;
+  name: string;
+  store: string;
+  url: string;
+  imageUrl: string | null;
+  currency: string;
+  price: number;
+  listPrice: number | null;
+  targetPrice: number | null;
+  reasons: AlertReason[];
+  /** En una línea con varios colores: los colores que cumplen la condición (vacío en productos simples). */
+  variants: string[];
+}
+
+/** Envía avisos de ofertas (un aviso agrupa todas las de un usuario) y reportes para quien administra. */
+export interface Notifier {
+  sendDeals(to: string, deals: Deal[]): Promise<void>;
+  sendFailureReport(to: string, stores: StoreFailures[]): Promise<void>;
+}

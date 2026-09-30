@@ -1,26 +1,194 @@
 @import "tailwindcss";
+@import "./palettes.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* `dark:` de Tailwind respeta tanto el botón como la preferencia del sistema. */
+@custom-variant dark {
+  &:where([data-theme="dark"], [data-theme="dark"] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme="light"]), :root:not([data-theme="light"]) *) {
+      @slot;
+    }
   }
 }
 
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-sale: var(--sale);
+  --color-sale-soft: var(--sale-soft);
+  --color-target: var(--target);
+  --color-target-soft: var(--target-soft);
+  --color-danger: var(--danger);
+  --font-sans: var(--font-body);
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+}
+
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* En una capa para que las utilidades de Tailwind puedan ajustarlos. */
+@layer components {
+  .card {
+    background: var(--surface);
+    border: var(--border-w) solid var(--card-border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+  }
+
+  /*
+   * Etiqueta colgante de precio. Tres capas: la exterior aplica sombra o brillo (que el recorte
+   * eliminaría), la forma dibuja el borde con la muesca y el cuerpo pone el fondo y el texto.
+   */
+  .price-tag {
+    --tag-bg: var(--surface);
+    --tag-ink: var(--ink);
+    --tag-text: var(--ink);
+    --notch: 0.8rem;
+    display: inline-flex;
+  }
+  .price-tag[data-sale="true"] {
+    --tag-bg: var(--sale);
+    --tag-ink: var(--sale);
+    --tag-text: var(--on-sale);
+    filter: var(--tag-filter);
+  }
+  .price-tag-shape {
+    display: inline-flex;
+    padding: var(--border-w);
+    background: var(--tag-ink);
+    clip-path: polygon(var(--notch) 0, 100% 0, 100% 100%, var(--notch) 100%, 0 50%);
+    border-radius: 0 calc(var(--radius-tag) + 1px) calc(var(--radius-tag) + 1px) 0;
+  }
+  .price-tag-body {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-end;
+    padding: 0.45rem 0.85rem 0.45rem 1.6rem;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    clip-path: polygon(calc(var(--notch) - 1px) 0, 100% 0, 100% 100%, calc(var(--notch) - 1px) 100%, 0 50%);
+    border-radius: 0 var(--radius-tag) var(--radius-tag) 0;
+    line-height: 1.15;
+    white-space: nowrap;
+  }
+  /* Costura opcional (paleta Jardín). */
+  .price-tag[data-sale="true"] .price-tag-body {
+    outline: var(--tag-stitch, none);
+    outline-offset: -4px;
+  }
+  .price-tag-body::before {
+    content: "";
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    width: 0.4rem;
+    height: 0.4rem;
+    margin-top: -0.2rem;
+    border-radius: 50%;
+    background: var(--bg);
+    box-shadow: inset 0 0 0 var(--border-w) var(--tag-ink);
+  }
+  .price-tag[data-sale="true"] .price-tag-body::before {
+    box-shadow: none;
+  }
+  .price-tag[data-size="sm"] {
+    --notch: 0.65rem;
+  }
+  .price-tag[data-size="sm"] .price-tag-body {
+    padding: 0.3rem 0.6rem 0.3rem 1.3rem;
+  }
+  .price-tag[data-size="sm"] .price-tag-body::before {
+    left: 0.6rem;
+    width: 0.35rem;
+    height: 0.35rem;
+    margin-top: -0.175rem;
+  }
+
+  .field {
+    width: 100%;
+    border: var(--border-w) solid var(--line);
+    background: var(--surface);
+    border-radius: var(--radius-control);
+    padding: 0.65rem 0.8rem;
+    color: var(--ink);
+  }
+  .field:focus {
+    border-color: var(--ink);
+    outline: none;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    border-radius: var(--radius-btn);
+    padding: 0.65rem 1.1rem;
+    font-weight: 600;
+    background: var(--btn-bg);
+    color: var(--btn-ink);
+    border: var(--btn-border, none);
+    box-shadow: var(--shadow-btn);
+    cursor: pointer;
+  }
+  .btn:disabled {
+    opacity: 0.6;
+    cursor: progress;
+  }
+  .btn-quiet {
+    background: transparent;
+    color: var(--ink);
+    border: var(--border-w) solid var(--line);
+    box-shadow: none;
+  }
+
+  /* Píldora de filtro: va justo después de un <input type="radio" class="peer sr-only">. */
+  .chip {
+    display: block;
+    cursor: pointer;
+    border: var(--border-w) solid var(--line);
+    border-radius: 999px;
+    padding: 0.25rem 0.875rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--muted);
+  }
+  .chip:hover {
+    border-color: var(--ink);
+    color: var(--ink);
+  }
+  :checked + .chip {
+    border-color: var(--btn-bg);
+    background: var(--btn-bg);
+    color: var(--btn-ink);
+  }
+  :focus-visible + .chip {
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
 }
