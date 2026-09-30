@@ -105,7 +105,7 @@ export default async function GroupPage({ params }: PageProps<"/grupos/[id]">) {
                     Ver en la tienda
                   </a>
                   <Link href={`/productos/${member.id}`} className="text-muted underline underline-offset-4 hover:text-ink">
-                    Avisos
+                    Ver más
                   </Link>
                   <form action={removeFromGroupAction}>
                     <input type="hidden" name="groupId" value={group.id} />
@@ -118,8 +118,8 @@ export default async function GroupPage({ params }: PageProps<"/grupos/[id]">) {
           })}
         </ul>
         <p className="text-xs text-muted">
-          Los avisos siguen funcionando por tienda. En “Avisos” cambias las condiciones de cada una; “Quitar” la saca
-          del grupo sin dejar de seguirla.
+          Los avisos siguen funcionando por tienda. En “Ver más” están el historial y las condiciones de aviso de cada
+          una; “Quitar” la saca del grupo sin dejar de seguirla.
         </p>
       </section>
 
