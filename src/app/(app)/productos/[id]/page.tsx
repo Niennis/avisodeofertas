@@ -8,6 +8,7 @@ import { formatDateTime } from "@/lib/format";
 import { removeWatchAction } from "@/web/actions";
 import { PriceChart } from "@/web/components/price-chart";
 import { PriceTag } from "@/web/components/price-tag";
+import { RefreshPriceButton } from "@/web/components/price-refresh";
 import { StoreAdder } from "@/web/components/store-adder";
 import { VariantPicker } from "@/web/components/variant-picker";
 import { groupCandidates } from "@/web/group-candidates";
@@ -72,6 +73,7 @@ export default async function ProductPage({ params }: PageProps<"/productos/[id]
             </a>
           </p>
           {product.lastError && <p className="text-sm text-danger">Última revisión con error: {product.lastError}</p>}
+          <RefreshPriceButton watchId={watch.id} />
         </div>
       </section>
 

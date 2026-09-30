@@ -18,7 +18,7 @@ export function PriceChart({
   if (history.length < 2) {
     return (
       <p className="text-sm text-muted">
-        El gráfico aparece desde la segunda revisión de precio. Los precios se revisan una vez al día.
+        El gráfico aparece desde la segunda revisión de precio. Los precios se revisan dos veces al día (09:00 y 20:00).
       </p>
     );
   }

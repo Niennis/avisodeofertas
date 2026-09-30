@@ -150,6 +150,18 @@ export async function updateWatchAction(_: FormState, form: FormData): Promise<F
   });
 }
 
+/** "Actualizar precio" en la ficha de un producto. */
+export async function refreshWatchAction(_: FormState, form: FormData): Promise<FormState> {
+  return run(async () => {
+    const user = await requireUser();
+    const { watches } = await getContainer();
+    const result = await watches.refresh(user.id, text(form, "watchId"));
+    if (result === "recent") return { ok: "Se revisó hace un momento; ese es el precio actual." };
+    revalidatePath("/", "layout");
+    return { ok: "Precio actualizado." };
+  });
+}
+
 export async function selectVariantsAction(_: FormState, form: FormData): Promise<FormState> {
   return run(async () => {
     const user = await requireUser();
@@ -221,6 +233,19 @@ export async function resolveStoreAction(form: FormData) {
   if (!admin.isAdmin(user)) return;
   await admin.resolveStore(text(form, "host"));
   revalidatePath("/admin");
+}
+
+/** Administración: "Revisar ahora" hace la misma revisión que el cron, incluidos los avisos por email. */
+export async function checkAllPricesAction(): Promise<FormState> {
+  const user = await requireUser();
+  const container = await getContainer();
+  if (!container.admin.isAdmin(user)) return { error: "No autorizado." };
+  const result = await container.checkPrices(console.log);
+  revalidatePath("/", "layout");
+  const parts = [`${result.checked} ${result.checked === 1 ? "producto revisado" : "productos revisados"}`];
+  if (result.failed.length > 0) parts.push(`${result.failed.length} con error`);
+  parts.push(result.emailsSent === 0 ? "sin avisos nuevos" : `${result.emailsSent} ${result.emailsSent === 1 ? "email enviado" : "emails enviados"}`);
+  return { ok: `Listo: ${parts.join(", ")}.` };
 }
 
 export async function updateEmailNotificationsAction(_: FormState, form: FormData): Promise<FormState> {

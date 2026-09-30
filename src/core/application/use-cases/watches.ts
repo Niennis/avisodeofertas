@@ -13,6 +13,8 @@ import type { WatchRepository } from "../ports/watch-repository";
 import { dissolveIfTooSmall } from "./groups";
 
 const HISTORY_DAYS = 180;
+/** "Actualizar precio" no vuelve a consultar la tienda si se revisó hace menos que esto. */
+export const REFRESH_COOLDOWN_MINUTES = 5;
 
 export interface WatchDeps {
   products: ProductRepository;
@@ -149,6 +151,32 @@ export class WatchService {
     const since = new Date(this.deps.clock.now().getTime() - HISTORY_DAYS * 24 * 60 * 60 * 1000);
     const history = await this.deps.products.history(watch.productId, since);
     return { watch, history };
+  }
+
+  /**
+   * "Actualizar precio": lee ahora el precio de un producto que sigue y lo guarda en el historial.
+   * No envía avisos; si hay una oferta, se avisa en la próxima revisión programada.
+   */
+  async refresh(userId: string, watchId: string): Promise<"updated" | "recent"> {
+    const { products, priceReader, clock } = this.deps;
+    const { product } = await this.get(userId, watchId);
+    const now = clock.now();
+    // Solo si esa revisión salió bien: si falló, vale la pena intentar de nuevo.
+    const checkedRecently =
+      product.lastCheckedAt != null && now.getTime() - product.lastCheckedAt.getTime() < REFRESH_COOLDOWN_MINUTES * 60 * 1000;
+    if (checkedRecently && !product.lastError) {
+      return "recent";
+    }
+    let reading: PriceReading;
+    try {
+      reading = await priceReader.read(product.url);
+    } catch (error) {
+      // No se registra como fallo: la revisión programada se encarga de eso.
+      if (error instanceof PriceUnavailableError) throw error;
+      throw new DomainError("No pudimos consultar la tienda en este momento. Intenta de nuevo en un rato.");
+    }
+    await products.recordReading(product.id, reading, now);
+    return "updated";
   }
 
   /** Lee el precio; si falla, lo registra para quien administra la app. */

@@ -4,7 +4,11 @@ import { getContainer } from "@/composition/container";
 import { PROBLEM_LABELS } from "@/core/domain/failures";
 import { formatDateTime } from "@/lib/format";
 import { resolveStoreAction } from "@/web/actions";
+import { CheckAllPricesButton } from "@/web/components/price-refresh";
 import { requireUser } from "@/web/session";
+
+// "Revisar ahora" recorre todas las tiendas con pausas entre consultas: igual que el cron, puede tardar.
+export const maxDuration = 300;
 
 export default async function AdminPage() {
   const user = await requireUser();
@@ -18,8 +22,19 @@ export default async function AdminPage() {
       <Link href="/" className="text-sm text-muted hover:text-ink">
         ‹ Mis productos
       </Link>
+      <section className="card flex flex-col gap-3 p-5">
+        <div>
+          <h1 className="text-2xl font-bold">Revisión de precios</h1>
+          <p className="mt-1 text-sm text-muted">
+            Se revisan todos los días a las 09:00 y a las 20:00. Con este botón se hace una revisión completa ahora
+            mismo, incluidos los emails de ofertas nuevas.
+          </p>
+        </div>
+        <CheckAllPricesButton />
+      </section>
+
       <div>
-        <h1 className="text-2xl font-bold">Tiendas con problemas</h1>
+        <h2 className="text-2xl font-bold">Tiendas con problemas</h2>
         <p className="mt-1 text-sm text-muted">
           Enlaces que la app no pudo leer, al agregarlos o en dos revisiones seguidas. Con el último enlace de cada
           tienda se puede agregar un lector para ella. Recibes un resumen por email cuando aparecen fallos nuevos.
@@ -33,7 +48,7 @@ export default async function AdminPage() {
           {stores.map((store) => (
             <li key={store.host} className="card flex flex-col gap-3 p-4">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <h2 className="font-bold">{store.host}</h2>
+                <h3 className="font-bold">{store.host}</h3>
                 <span className="text-sm text-muted">
                   {store.count} {store.count === 1 ? "vez" : "veces"} · último {formatDateTime(store.lastAt)}
                 </span>

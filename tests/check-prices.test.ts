@@ -491,6 +491,46 @@ describe("flujo completo con base de datos", () => {
     expect((await run()).checked).toBe(0);
   });
 
+  it("actualizar precio: guarda la lectura sin enviar avisos y no consulta la tienda de nuevo enseguida", async () => {
+    const ana = await newUser("ana@correo.cl");
+    const bea = await newUser("bea@correo.cl");
+    const watchId = await follow(ana.id, URL_A);
+    let now = Date.now() + 6 * 60 * 1000; // el producto recién agregado ya cuenta como revisado
+    clock.now = () => new Date(now);
+
+    reader.prices.set(URL_A, { price: 3900, listPrice: 5000 });
+    expect(await watches.refresh(ana.id, watchId)).toBe("updated");
+    const { watch, history } = await watches.detail(ana.id, watchId);
+    expect(watch.product.price).toBe(3900);
+    expect(history).toHaveLength(2);
+    expect(notifier.sent).toHaveLength(0);
+
+    // Recién revisado: no vuelve a consultar la tienda.
+    reader.prices.set(URL_A, { price: 3500 });
+    expect(await watches.refresh(ana.id, watchId)).toBe("recent");
+    expect((await watches.detail(ana.id, watchId)).watch.product.price).toBe(3900);
+
+    // Un error de la tienda se muestra, pero no se registra como fallo de la revisión.
+    now += 6 * 60 * 1000;
+    reader.prices.set(URL_A, new Error("socket hang up"));
+    await expect(watches.refresh(ana.id, watchId)).rejects.toThrow("No pudimos consultar la tienda");
+    expect((await watches.detail(ana.id, watchId)).watch.product.lastError).toBeNull();
+
+    // Si la última revisión falló, se puede reintentar enseguida.
+    await run();
+    expect((await watches.detail(ana.id, watchId)).watch.product.lastError).not.toBeNull();
+    reader.prices.set(URL_A, { price: 3700, listPrice: 5000 });
+    expect(await watches.refresh(ana.id, watchId)).toBe("updated");
+
+    // La oferta se avisa en la revisión programada.
+    now += 6 * 60 * 1000;
+    reader.prices.set(URL_A, { price: 3900, listPrice: 5000 });
+    await run();
+    expect(notifier.sent.map((s) => s.to)).toEqual(["ana@correo.cl"]);
+
+    await expect(watches.refresh(bea.id, watchId)).rejects.toThrow("No encontramos");
+  });
+
   it("un usuario no puede ver ni borrar productos de otro", async () => {
     const ana = await newUser("ana@correo.cl");
     const bea = await newUser("bea@correo.cl");
