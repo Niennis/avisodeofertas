@@ -10,16 +10,20 @@ export function AuthForm({
   submitLabel,
   pendingLabel,
   askInviteCode = false,
+  next = null,
 }: {
   action: (state: FormState, form: FormData) => Promise<FormState>;
   submitLabel: string;
   pendingLabel: string;
   askInviteCode?: boolean;
+  /** Página a la que volver después de ingresar. */
+  next?: string | null;
 }) {
   const [state, formAction, pending] = useActionState(action, {});
   const submit = useSubmitWithoutReset(formAction);
   return (
     <form onSubmit={submit} className="flex flex-col gap-4">
+      {next && <input type="hidden" name="siguiente" value={next} />}
       <label className="flex flex-col gap-1.5">
         <span className="text-sm font-medium">Email</span>
         <input className="field" type="email" name="email" autoComplete="email" required />

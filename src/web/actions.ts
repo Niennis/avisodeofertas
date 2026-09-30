@@ -10,6 +10,7 @@ import type { Session } from "@/core/application/use-cases/auth";
 import type { AddResolution, AddWatchResult } from "@/core/application/use-cases/watches";
 import { getContainer } from "@/composition/container";
 import { endSession, requireUser, savePaletteCookie, saveSessionCookie } from "./session";
+import { safeNextPath } from "./shared-link";
 
 export interface FormState {
   error?: string;
@@ -68,7 +69,7 @@ export async function loginAction(_: FormState, form: FormData): Promise<FormSta
     await startSession(await auth.login({ email: text(form, "email"), password: text(form, "password") }));
   });
   if (state.error) return state;
-  redirect("/");
+  redirect(safeNextPath(form.get("siguiente")) ?? "/");
 }
 
 /** Dirección pública de la app para armar enlaces: `APP_URL`, o la de esta misma request. */

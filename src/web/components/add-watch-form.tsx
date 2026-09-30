@@ -6,7 +6,8 @@ import { addWatchAction, type AddConflict, type FormState } from "../actions";
 import { AlertOptions } from "./alert-options";
 import { useSubmitWithoutReset } from "./use-submit";
 
-export function AddWatchForm() {
+/** `sharedUrl`: enlace que llegó desde el menú "Compartir" del celular; queda pegado, listo para seguir. */
+export function AddWatchForm({ sharedUrl = null }: { sharedUrl?: string | null }) {
   const [state, formAction, pending] = useActionState(addWatchAction, {});
   const submit = useSubmitWithoutReset(formAction);
   const formRef = useRef<HTMLFormElement>(null);
@@ -15,8 +16,16 @@ export function AddWatchForm() {
   const conflict = state !== dismissed ? state.conflict : undefined;
 
   useEffect(() => {
-    if (state.ok) formRef.current?.reset();
-  }, [state]);
+    if (!state.ok) return;
+    formRef.current?.reset();
+    if (sharedUrl) {
+      // `reset` vuelve a poner el enlace compartido (es el valor inicial): se borra a mano,
+      // y también de la dirección, sin recargar para no perder el mensaje de "Listo".
+      const input = formRef.current?.elements.namedItem("url");
+      if (input instanceof HTMLInputElement) input.value = "";
+      window.history.replaceState(null, "", "/");
+    }
+  }, [state, sharedUrl]);
 
   return (
     <form ref={formRef} onSubmit={submit} className="flex flex-col gap-3">
@@ -30,6 +39,8 @@ export function AddWatchForm() {
           type="url"
           required
           placeholder="https://www.orquidea.cl/products/bamboo"
+          defaultValue={sharedUrl ?? undefined}
+          autoFocus={sharedUrl != null}
           className="field flex-1 text-base"
           onChange={() => setDismissed(state)}
         />

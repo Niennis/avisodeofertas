@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Fraunces, Fredoka, Nunito, Nunito_Sans, Schibsted_Grotesk, Sora, Unbounded } from "next/font/google";
 import { themeInitScript } from "@/web/theme";
 import "./globals.css";
@@ -18,6 +18,16 @@ const fontVariables = [schibsted, fredoka, nunito, sora, unbounded, fraunces, nu
 export const metadata: Metadata = {
   title: "Alerta de ofertas",
   description: "Te avisa por email cuando los productos que sigues bajan de precio.",
+  // Al instalarla en iPhone ("Agregar a inicio"): nombre bajo el ícono y pantalla completa.
+  appleWebApp: { title: "Ofertas", capable: true, statusBarStyle: "default" },
+};
+
+// Color de la barra del sistema en el celular, según el modo claro u oscuro de la paleta predeterminada.
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#eef1ec" },
+    { media: "(prefers-color-scheme: dark)", color: "#151b22" },
+  ],
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

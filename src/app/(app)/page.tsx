@@ -3,9 +3,12 @@ import { getContainer } from "@/composition/container";
 import { AddWatchForm } from "@/web/components/add-watch-form";
 import { WatchBrowser } from "@/web/components/watch-browser";
 import { requireUser } from "@/web/session";
+import { sharedLink } from "@/web/shared-link";
 
-export default async function HomePage() {
+export default async function HomePage({ searchParams }: PageProps<"/">) {
   const user = await requireUser();
+  // Enlace que llegó desde el menú "Compartir" (vía /compartir).
+  const shared = sharedLink(await searchParams);
   const { watches, groups } = await getContainer();
   const [list, userGroups] = await Promise.all([watches.list(user.id), groups.list(user.id)]);
 
@@ -20,7 +23,7 @@ export default async function HomePage() {
         </p>
       )}
       <section className="card p-5">
-        <AddWatchForm />
+        <AddWatchForm key={shared} sharedUrl={shared} />
       </section>
 
       {list.length === 0 ? (
