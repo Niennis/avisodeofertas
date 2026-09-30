@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState } from "react";
 import type { FormState } from "../actions";
+import { PasswordField } from "./password-field";
 import { useSubmitWithoutReset } from "./use-submit";
 
 export function AuthForm({
@@ -17,39 +18,13 @@ export function AuthForm({
 }) {
   const [state, formAction, pending] = useActionState(action, {});
   const submit = useSubmitWithoutReset(formAction);
-  const [showPassword, setShowPassword] = useState(false);
   return (
     <form onSubmit={submit} className="flex flex-col gap-4">
       <label className="flex flex-col gap-1.5">
         <span className="text-sm font-medium">Email</span>
         <input className="field" type="email" name="email" autoComplete="email" required />
       </label>
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="password" className="text-sm font-medium">
-          Contraseña
-        </label>
-        <div className="relative">
-          <input
-            id="password"
-            className="field pr-20"
-            type={showPassword ? "text" : "password"}
-            name="password"
-            autoComplete={askInviteCode ? "new-password" : "current-password"}
-            minLength={askInviteCode ? 8 : undefined}
-            required
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword((shown) => !shown)}
-            aria-controls="password"
-            aria-pressed={showPassword}
-            className="absolute inset-y-1 right-1 rounded-md px-3 text-sm font-medium text-muted hover:text-ink"
-          >
-            {showPassword ? "Ocultar" : "Mostrar"}
-          </button>
-        </div>
-        {askInviteCode && <span className="text-xs text-muted">Mínimo 8 caracteres.</span>}
-      </div>
+      <PasswordField isNew={askInviteCode} />
       {askInviteCode && (
         <label className="flex flex-col gap-1.5">
           <span className="text-sm font-medium">Código de invitación</span>

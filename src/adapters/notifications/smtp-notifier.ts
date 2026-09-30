@@ -3,6 +3,7 @@ import type { Deal, Notifier } from "@/core/application/ports/notifier";
 import type { StoreFailures } from "@/core/domain/failures";
 import { dealEmailHtml, dealEmailSubject, dealEmailText } from "./deal-email";
 import { failureEmailHtml, failureEmailSubject, failureEmailText } from "./failure-email";
+import { passwordResetEmailHtml, passwordResetEmailSubject, passwordResetEmailText } from "./password-reset-email";
 
 export interface SmtpConfig {
   host: string;
@@ -50,6 +51,16 @@ export class SmtpNotifier implements Notifier {
       html: failureEmailHtml(stores, this.appUrl),
     });
   }
+
+  async sendPasswordReset(to: string, link: string, validMinutes: number): Promise<void> {
+    await this.transporter.sendMail({
+      from: this.config.from,
+      to,
+      subject: passwordResetEmailSubject,
+      text: passwordResetEmailText(link, validMinutes),
+      html: passwordResetEmailHtml(link, validMinutes),
+    });
+  }
 }
 
 /** Para desarrollo: muestra el aviso en la consola en vez de enviarlo. */
@@ -60,5 +71,9 @@ export class ConsoleNotifier implements Notifier {
 
   async sendFailureReport(to: string, stores: StoreFailures[]): Promise<void> {
     console.log(`\n[email simulado] Para: ${to}\nAsunto: ${failureEmailSubject(stores)}\n${failureEmailText(stores, null)}\n`);
+  }
+
+  async sendPasswordReset(to: string, link: string, validMinutes: number): Promise<void> {
+    console.log(`\n[email simulado] Para: ${to}\nAsunto: ${passwordResetEmailSubject}\n${passwordResetEmailText(link, validMinutes)}\n`);
   }
 }

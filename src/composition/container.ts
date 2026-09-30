@@ -3,7 +3,7 @@ import { createDatabase } from "@/adapters/persistence/drizzle/db";
 import { DrizzleFailureRepository } from "@/adapters/persistence/drizzle/failure-repository";
 import { DrizzleGroupRepository } from "@/adapters/persistence/drizzle/group-repository";
 import { DrizzleProductRepository } from "@/adapters/persistence/drizzle/product-repository";
-import { DrizzleSessionRepository, DrizzleUserRepository } from "@/adapters/persistence/drizzle/user-repository";
+import { DrizzlePasswordResetRepository, DrizzleSessionRepository, DrizzleUserRepository } from "@/adapters/persistence/drizzle/user-repository";
 import { DrizzleWatchRepository } from "@/adapters/persistence/drizzle/watch-repository";
 import { MultiPlatformPriceReader } from "@/adapters/price-readers/multi-platform-price-reader";
 import { ScryptPasswordHasher } from "@/adapters/security/scrypt-password-hasher";
@@ -38,7 +38,9 @@ export async function buildContainer(config: AppConfig = loadConfig()) {
     auth: new AuthService({
       users,
       sessions: new DrizzleSessionRepository(db),
+      resets: new DrizzlePasswordResetRepository(db),
       hasher: new ScryptPasswordHasher(),
+      notifier,
       clock,
       inviteCode: config.inviteCode,
     }),

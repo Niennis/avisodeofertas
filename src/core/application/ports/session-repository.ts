@@ -5,4 +5,6 @@ export interface SessionRepository {
   create(userId: string, expiresAt: Date): Promise<string>;
   findUser(token: string, now: Date): Promise<User | null>;
   delete(token: string): Promise<void>;
+  /** Cierra todas las sesiones de una persona (por ejemplo, al cambiar su contraseña). */
+  deleteAllForUser(userId: string): Promise<void>;
 }

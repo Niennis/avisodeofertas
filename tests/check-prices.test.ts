@@ -3,7 +3,7 @@ import { createDatabase } from "@/adapters/persistence/drizzle/db";
 import { DrizzleFailureRepository } from "@/adapters/persistence/drizzle/failure-repository";
 import { DrizzleGroupRepository } from "@/adapters/persistence/drizzle/group-repository";
 import { DrizzleProductRepository } from "@/adapters/persistence/drizzle/product-repository";
-import { DrizzleSessionRepository, DrizzleUserRepository } from "@/adapters/persistence/drizzle/user-repository";
+import { DrizzlePasswordResetRepository, DrizzleSessionRepository, DrizzleUserRepository } from "@/adapters/persistence/drizzle/user-repository";
 import { DrizzleWatchRepository } from "@/adapters/persistence/drizzle/watch-repository";
 import { ScryptPasswordHasher } from "@/adapters/security/scrypt-password-hasher";
 import type { Deal, Notifier } from "@/core/application/ports/notifier";
@@ -31,11 +31,15 @@ class FakePriceReader implements PriceReader {
 class FakeNotifier implements Notifier {
   sent: { to: string; deals: Deal[] }[] = [];
   failureReports: { to: string; stores: StoreFailures[] }[] = [];
+  resetLinks: { to: string; link: string }[] = [];
   async sendDeals(to: string, deals: Deal[]) {
     this.sent.push({ to, deals });
   }
   async sendFailureReport(to: string, stores: StoreFailures[]) {
     this.failureReports.push({ to, stores });
+  }
+  async sendPasswordReset(to: string, link: string) {
+    this.resetLinks.push({ to, link });
   }
 }
 
@@ -51,19 +55,22 @@ describe("flujo completo con base de datos", () => {
   let failureRepo: DrizzleFailureRepository;
   let watches: WatchService;
   let run: () => ReturnType<typeof checkPrices>;
+  let clock: { now: () => Date };
 
   beforeEach(async () => {
     const db = await createDatabase("pglite:memory");
     const products = new DrizzleProductRepository(db);
     const watchRepo = new DrizzleWatchRepository(db);
-    const clock = { now: () => new Date() };
+    clock = { now: () => new Date() };
     account = new AccountService(new DrizzleUserRepository(db));
     reader = new FakePriceReader();
     notifier = new FakeNotifier();
     auth = new AuthService({
       users: new DrizzleUserRepository(db),
       sessions: new DrizzleSessionRepository(db),
+      resets: new DrizzlePasswordResetRepository(db),
       hasher: new ScryptPasswordHasher(),
+      notifier,
       clock,
       inviteCode: "lanas2026",
     });
@@ -97,6 +104,61 @@ describe("flujo completo con base de datos", () => {
     ).rejects.toThrow("invitación");
     await auth.logout(session.token);
     expect(await auth.currentUser(session.token)).toBeNull();
+  });
+
+  describe("recuperar contraseña", () => {
+    const BASE = "https://ofertas.cl";
+    const tokenFrom = (link: string) => new URL(link).searchParams.get("token")!;
+
+    it("envía un enlace, cambia la contraseña, cierra las sesiones anteriores y no deja reutilizarlo", async () => {
+      await newUser("ana@correo.cl");
+      const old = await auth.login({ email: "ana@correo.cl", password: "clave-segura" });
+
+      await auth.requestPasswordReset({ email: " Ana@Correo.cl ", baseUrl: `${BASE}/` });
+      expect(notifier.resetLinks).toHaveLength(1);
+      const { to, link } = notifier.resetLinks[0];
+      expect(to).toBe("ana@correo.cl");
+      expect(link.startsWith(`${BASE}/restablecer?token=`)).toBe(true);
+
+      // Una contraseña corta no gasta el enlace.
+      await expect(auth.resetPassword({ token: tokenFrom(link), password: "corta" })).rejects.toThrow("8 caracteres");
+
+      const session = await auth.resetPassword({ token: tokenFrom(link), password: "clave-nueva-123" });
+      expect((await auth.currentUser(session.token))?.email).toBe("ana@correo.cl");
+      expect(await auth.currentUser(old.token)).toBeNull();
+      await expect(auth.login({ email: "ana@correo.cl", password: "clave-segura" })).rejects.toThrow("incorrectos");
+      await auth.login({ email: "ana@correo.cl", password: "clave-nueva-123" });
+
+      await expect(auth.resetPassword({ token: tokenFrom(link), password: "otra-clave-456" })).rejects.toThrow("no es válido");
+    });
+
+    it("no revela si el email no tiene cuenta y no envía varios enlaces seguidos", async () => {
+      await auth.requestPasswordReset({ email: "nadie@correo.cl", baseUrl: BASE });
+      expect(notifier.resetLinks).toHaveLength(0);
+
+      await newUser("ana@correo.cl");
+      await auth.requestPasswordReset({ email: "ana@correo.cl", baseUrl: BASE });
+      await auth.requestPasswordReset({ email: "ana@correo.cl", baseUrl: BASE });
+      expect(notifier.resetLinks).toHaveLength(1);
+    });
+
+    it("el enlace vence a la hora y uno nuevo invalida el anterior", async () => {
+      await newUser("ana@correo.cl");
+      let now = Date.now();
+      clock.now = () => new Date(now);
+
+      await auth.requestPasswordReset({ email: "ana@correo.cl", baseUrl: BASE });
+      now += 61 * 60 * 1000;
+      const expired = tokenFrom(notifier.resetLinks[0].link);
+      await expect(auth.resetPassword({ token: expired, password: "clave-nueva-123" })).rejects.toThrow("venció");
+
+      await auth.requestPasswordReset({ email: "ana@correo.cl", baseUrl: BASE });
+      now += 2 * 60 * 1000;
+      await auth.requestPasswordReset({ email: "ana@correo.cl", baseUrl: BASE });
+      const [, second, third] = notifier.resetLinks.map((r) => tokenFrom(r.link));
+      await expect(auth.resetPassword({ token: second, password: "clave-nueva-123" })).rejects.toThrow("no es válido");
+      await auth.resetPassword({ token: third, password: "clave-nueva-123" });
+    });
   });
 
   it("avisa una sola vez por oferta y agrupa por usuario", async () => {

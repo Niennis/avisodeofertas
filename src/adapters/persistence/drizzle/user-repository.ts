@@ -1,10 +1,11 @@
 import { createHash, randomBytes } from "node:crypto";
-import { and, eq, gt } from "drizzle-orm";
+import { and, desc, eq, gt } from "drizzle-orm";
+import type { PasswordResetRepository } from "@/core/application/ports/password-reset-repository";
 import type { SessionRepository } from "@/core/application/ports/session-repository";
 import type { UserRepository, UserWithPassword } from "@/core/application/ports/user-repository";
 import type { Palette, User } from "@/core/domain/user";
 import type { Database } from "./db";
-import { sessions, users } from "./schema";
+import { passwordResets, sessions, users } from "./schema";
 
 const publicColumns = {
   id: users.id,
@@ -30,6 +31,10 @@ export class DrizzleUserRepository implements UserRepository {
   async create(email: string, passwordHash: string): Promise<User> {
     const [row] = await this.db.insert(users).values({ email, passwordHash }).returning(publicColumns);
     return row;
+  }
+
+  async setPasswordHash(userId: string, passwordHash: string): Promise<void> {
+    await this.db.update(users).set({ passwordHash }).where(eq(users.id, userId));
   }
 
   async setEmailNotifications(userId: string, enabled: boolean): Promise<void> {
@@ -62,6 +67,42 @@ export class DrizzleSessionRepository implements SessionRepository {
 
   async delete(token: string): Promise<void> {
     await this.db.delete(sessions).where(eq(sessions.id, hashToken(token)));
+  }
+
+  async deleteAllForUser(userId: string): Promise<void> {
+    await this.db.delete(sessions).where(eq(sessions.userId, userId));
+  }
+}
+
+/** Enlaces de recuperación de contraseña; igual que las sesiones, se guarda solo el hash del token. */
+export class DrizzlePasswordResetRepository implements PasswordResetRepository {
+  constructor(private readonly db: Database) {}
+
+  async create(userId: string, expiresAt: Date, now: Date): Promise<string> {
+    const token = randomBytes(32).toString("base64url");
+    await this.db.delete(passwordResets).where(eq(passwordResets.userId, userId));
+    await this.db.insert(passwordResets).values({ id: hashToken(token), userId, expiresAt, createdAt: now });
+    return token;
+  }
+
+  async lastCreatedAt(userId: string): Promise<Date | null> {
+    const [row] = await this.db
+      .select({ createdAt: passwordResets.createdAt })
+      .from(passwordResets)
+      .where(eq(passwordResets.userId, userId))
+      .orderBy(desc(passwordResets.createdAt))
+      .limit(1);
+    return row?.createdAt ?? null;
+  }
+
+  async consume(token: string, now: Date): Promise<string | null> {
+    const [row] = await this.db
+      .delete(passwordResets)
+      .where(and(eq(passwordResets.id, hashToken(token)), gt(passwordResets.expiresAt, now)))
+      .returning({ userId: passwordResets.userId });
+    if (!row) return null;
+    await this.db.delete(passwordResets).where(eq(passwordResets.userId, row.userId));
+    return row.userId;
   }
 }
 

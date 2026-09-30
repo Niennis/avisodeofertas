@@ -10,6 +10,11 @@ export default async function LoginPage() {
     <>
       <h1 className="mb-6 text-2xl font-bold">Ingresar</h1>
       <AuthForm action={loginAction} submitLabel="Ingresar" pendingLabel="Ingresando…" />
+      <p className="mt-4 text-sm">
+        <Link href="/recuperar" className="text-muted underline underline-offset-4 hover:text-ink">
+          ¿Olvidaste tu contraseña?
+        </Link>
+      </p>
       <p className="mt-6 text-sm text-muted">
         ¿Primera vez?{" "}
         <Link href="/registro" className="font-medium text-ink underline underline-offset-4">

@@ -1,7 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { DomainError } from "@/core/domain/errors";
 import type { WatchSettings } from "@/core/domain/watch";
 import type { Session } from "@/core/application/use-cases/auth";
@@ -64,6 +66,36 @@ export async function loginAction(_: FormState, form: FormData): Promise<FormSta
   const state = await run(async () => {
     const { auth } = await getContainer();
     await startSession(await auth.login({ email: text(form, "email"), password: text(form, "password") }));
+  });
+  if (state.error) return state;
+  redirect("/");
+}
+
+/** Dirección pública de la app para armar enlaces: `APP_URL`, o la de esta misma request. */
+async function publicBaseUrl(): Promise<string> {
+  const { config } = await getContainer();
+  if (config.appUrl) return config.appUrl;
+  const h = await headers();
+  const host = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3000";
+  const protocol = h.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
+  return `${protocol}://${host}`;
+}
+
+export async function requestPasswordResetAction(_: FormState, form: FormData): Promise<FormState> {
+  const email = text(form, "email");
+  const baseUrl = await publicBaseUrl();
+  const { auth } = await getContainer();
+  // Se envía después de responder: así la respuesta tarda lo mismo exista o no la cuenta.
+  after(() => auth.requestPasswordReset({ email, baseUrl }).catch((error) => console.error("No se pudo enviar el enlace de recuperación", error)));
+  return {
+    ok: "Si hay una cuenta con ese email, te enviamos un enlace para crear una contraseña nueva. Revisa también la carpeta de spam.",
+  };
+}
+
+export async function resetPasswordAction(_: FormState, form: FormData): Promise<FormState> {
+  const state = await run(async () => {
+    const { auth } = await getContainer();
+    await startSession(await auth.resetPassword({ token: text(form, "token"), password: text(form, "password") }));
   });
   if (state.error) return state;
   redirect("/");

@@ -20,4 +20,6 @@ export interface Deal {
 export interface Notifier {
   sendDeals(to: string, deals: Deal[]): Promise<void>;
   sendFailureReport(to: string, stores: StoreFailures[]): Promise<void>;
+  /** Enlace para crear una contraseña nueva; vence en `validMinutes`. */
+  sendPasswordReset(to: string, link: string, validMinutes: number): Promise<void>;
 }
