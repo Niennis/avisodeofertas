@@ -12,6 +12,7 @@ import type { GroupRepository } from "../ports/group-repository";
 import type { WatchRepository } from "../ports/watch-repository";
 import { dissolveIfTooSmall } from "./groups";
 import { refreshPriceInsight } from "./price-insight";
+import { recordProductReading } from "./record-reading";
 
 const HISTORY_DAYS = 180;
 /** "Actualizar precio" no vuelve a consultar la tienda si se revisó hace menos que esto. */
@@ -120,10 +121,14 @@ export class WatchService {
 
   async update(userId: string, watchId: string, settings: WatchSettings): Promise<void> {
     validateSettings(settings);
-    await this.get(userId, watchId);
+    const watch = await this.get(userId, watchId);
     await this.deps.watches.updateSettings(watchId, settings);
     // Con condiciones nuevas corresponde volver a evaluar desde cero.
     await this.deps.watches.updateLastNotified(watchId, null, null);
+    // Al activar el aviso de stock solo cuentan los regresos desde ahora (no avisar de algo que ya estaba disponible).
+    if (settings.notifyOnRestock && !watch.notifyOnRestock) {
+      await this.deps.watches.markRestockNotified(watchId, this.deps.clock.now());
+    }
   }
 
   /** Guarda qué colores de una línea no quiere seguir. Recibe los que sí quiere. */
@@ -178,8 +183,8 @@ export class WatchService {
       if (error instanceof PriceUnavailableError) throw error;
       throw new DomainError("No pudimos consultar la tienda en este momento. Intenta de nuevo en un rato.");
     }
-    await products.recordReading(product.id, reading, now);
-    await refreshPriceInsight(products, product.id, now);
+    // Registra también si volvió el stock: el aviso sale en la próxima revisión programada.
+    await recordProductReading(products, product, reading, now);
     return "updated";
   }
 
@@ -216,7 +221,7 @@ function validateSettings(settings: WatchSettings) {
   if (settings.targetPrice != null && !(settings.targetPrice > 0)) {
     throw new DomainError("El precio objetivo debe ser mayor que cero.");
   }
-  if (!settings.notifyOnSale && settings.targetPrice == null) {
+  if (!settings.notifyOnSale && settings.targetPrice == null && !settings.notifyOnRestock) {
     throw new DomainError("Elige al menos una condición de aviso.");
   }
 }

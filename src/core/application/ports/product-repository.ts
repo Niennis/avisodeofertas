@@ -1,5 +1,6 @@
 import type { PriceReading } from "@/core/domain/price";
 import type { PriceInsight } from "@/core/domain/price-insight";
+import type { RestockTimes } from "@/core/domain/restock";
 import type { PriceSnapshot, Product } from "@/core/domain/product";
 
 export interface NewProduct {
@@ -17,6 +18,7 @@ export interface ProductRepository {
   /** Actualiza el precio actual y agrega la lectura al historial. */
   recordReading(productId: string, reading: PriceReading, checkedAt: Date): Promise<void>;
   savePriceInsight(productId: string, insight: PriceInsight | null): Promise<void>;
+  saveRestocks(productId: string, restocks: RestockTimes): Promise<void>;
   /** Guarda el error y devuelve cuántas revisiones seguidas lleva fallando. */
   recordError(productId: string, error: string, checkedAt: Date): Promise<number>;
   /** Productos que al menos un usuario sigue. */

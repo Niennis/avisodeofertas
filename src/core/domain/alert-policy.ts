@@ -1,7 +1,8 @@
 import { isOnSale } from "./price";
 import type { WatchSettings } from "./watch";
 
-export type AlertReason = "on_sale" | "below_target";
+/** Por qué se avisa: rebaja, precio objetivo o regreso de stock (este último no depende del precio). */
+export type AlertReason = "on_sale" | "below_target" | "back_in_stock";
 
 export interface AlertDecision {
   notify: boolean;

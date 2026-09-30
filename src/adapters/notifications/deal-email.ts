@@ -17,8 +17,14 @@ export function variantsText(names: string[], shown = 3): string {
   return `${names.slice(0, shown).join(", ")} y ${rest} ${rest === 1 ? "color" : "colores"} más`;
 }
 
+const isRestockOnly = (deal: Deal) => deal.reasons.every((r) => r === "back_in_stock");
+
 function reasonText(deal: Deal): string {
   const parts: string[] = [];
+  if (deal.reasons.includes("back_in_stock")) {
+    const colors = deal.restockedVariants.length > 0 ? ` de ${variantsText(deal.restockedVariants)}` : "";
+    parts.push(`volvió a haber stock${colors}`);
+  }
   const discount = discountPercent(deal.price, deal.listPrice);
   if (deal.reasons.includes("on_sale") && discount) parts.push(`${discount}% de descuento`);
   if (deal.reasons.includes("below_target") && deal.targetPrice != null) {
@@ -41,9 +47,21 @@ function insightHtml(line: InsightLine | null): string {
 }
 
 export function dealEmailSubject(deals: Deal[]): string {
+  if (deals.every(isRestockOnly)) {
+    return deals.length === 1
+      ? `Volvió a haber stock: ${deals[0].name}`
+      : `${deals.length} productos que sigues volvieron a tener stock`;
+  }
+  if (deals.some(isRestockOnly)) return `Novedades en ${deals.length} productos que sigues`;
   return deals.length === 1
     ? `Oferta: ${deals[0].name} a ${formatMoney(deals[0].price, deals[0].currency)}`
     : `${deals.length} productos que sigues están en oferta`;
+}
+
+function dealEmailHeading(deals: Deal[]): string {
+  if (deals.every(isRestockOnly)) return "¡Volvió el stock de productos que sigues!";
+  if (deals.some(isRestockOnly)) return "Novedades en productos que sigues";
+  return "¡Hay ofertas en productos que sigues!";
 }
 
 export function dealEmailText(deals: Deal[], appUrl: string | null): string {
@@ -84,7 +102,7 @@ export function dealEmailHtml(deals: Deal[], appUrl: string | null): string {
 
   return `<!doctype html><html><body style="margin:0;background:#f6f2ec;font-family:system-ui,-apple-system,Segoe UI,sans-serif">
 <div style="max-width:560px;margin:0 auto;padding:24px;background:#fffdf9">
-  <h1 style="font-size:20px;color:#2b2724;margin:0 0 8px">¡Hay ofertas en productos que sigues!</h1>
+  <h1 style="font-size:20px;color:#2b2724;margin:0 0 8px">${escapeHtml(dealEmailHeading(deals))}</h1>
   <table style="width:100%;border-collapse:collapse">${rows}</table>
   ${footer}
 </div></body></html>`;

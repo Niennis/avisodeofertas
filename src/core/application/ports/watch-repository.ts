@@ -12,6 +12,8 @@ export interface WatchRepository {
   create(userId: string, productId: string, settings: WatchSettings): Promise<Watch>;
   updateSettings(watchId: string, settings: WatchSettings): Promise<void>;
   updateLastNotified(watchId: string, price: number | null, at: Date | null): Promise<void>;
+  /** Desde cuándo contar los regresos de stock para este seguimiento. */
+  markRestockNotified(watchId: string, at: Date): Promise<void>;
   setExcludedVariants(watchId: string, keys: string[]): Promise<void>;
   setGroup(watchIds: string[], groupId: string | null): Promise<void>;
   delete(watchId: string): Promise<void>;

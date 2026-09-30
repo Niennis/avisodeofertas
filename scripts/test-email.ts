@@ -27,6 +27,7 @@ async function main() {
       targetPrice: null,
       reasons: ["on_sale"],
       variants: [],
+      restockedVariants: [],
       insight: {
         historyDays: 90,
         since: "2026-07-01T12:00:00.000Z",

@@ -134,7 +134,17 @@ export default async function ProductPage({ params }: PageProps<"/productos/[id]
 
       <section className="flex flex-col gap-3">
         <h2 className="font-bold">Cuándo avisarme</h2>
-        <WatchSettingsForm watchId={watch.id} notifyOnSale={watch.notifyOnSale} targetPrice={watch.targetPrice} />
+        <WatchSettingsForm
+          watchId={watch.id}
+          notifyOnSale={watch.notifyOnSale}
+          targetPrice={watch.targetPrice}
+          notifyOnRestock={watch.notifyOnRestock}
+        />
+        {watch.notifyOnRestock && (
+          <p className="text-xs text-muted">
+            El aviso de stock funciona con las tiendas que informan cuándo un producto está agotado.
+          </p>
+        )}
       </section>
 
       <form action={removeWatchAction} className="border-t border-line pt-6">

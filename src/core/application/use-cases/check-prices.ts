@@ -5,13 +5,14 @@ import { includedVariants, type ProductVariant } from "@/core/domain/variants";
 import type { Product } from "@/core/domain/product";
 import type { PriceReading } from "@/core/domain/price";
 import type { PriceInsight } from "@/core/domain/price-insight";
+import { restockedOptions, type RestockTimes } from "@/core/domain/restock";
 import type { Clock } from "../ports/clock";
 import type { Deal, Notifier } from "../ports/notifier";
 import type { PriceReader } from "../ports/price-reader";
 import type { FailureRepository } from "../ports/failure-repository";
 import type { ProductRepository } from "../ports/product-repository";
 import type { WatchRepository } from "../ports/watch-repository";
-import { refreshPriceInsight } from "./price-insight";
+import { recordProductReading } from "./record-reading";
 
 export interface CheckPricesDeps {
   products: ProductRepository;
@@ -52,7 +53,9 @@ export async function checkPrices(deps: CheckPricesDeps): Promise<CheckPricesRes
         if (index > 0 && deps.delayBetweenRequestsMs) await sleep(deps.delayBetweenRequestsMs);
         const read = await readProduct(deps, product, result, log);
         if (!read) continue;
-        const { reading, insight } = read;
+        const { reading, insight, restocks } = read;
+        const now = clock.now();
+        const current = { ...reading, variants: reading.variants ?? [], restocks };
 
         for (const { watch, email, emailNotifications } of await watches.listRecipients(product.id)) {
           // Sin avisos por email no se marca nada como avisado: si los reactiva,
@@ -63,11 +66,17 @@ export async function checkPrices(deps: CheckPricesDeps): Promise<CheckPricesRes
             await watches.updateLastNotified(
               watch.id,
               decision.nextLastNotifiedPrice,
-              decision.notify ? clock.now() : watch.lastNotifiedAt,
+              decision.notify ? now : watch.lastNotifiedAt,
             );
           }
-          if (!decision.notify) continue;
-          const best = decision.matching.reduce((a, b) => (b.price < a.price ? b : a));
+          const restocked = restockedOptions(watch, current, now);
+          if (restocked.length > 0) await watches.markRestockNotified(watch.id, now);
+          if (!decision.notify && restocked.length === 0) continue;
+
+          // Si hay oferta, se muestra su mejor precio; si solo volvió el stock, el de lo que volvió.
+          const shown = decision.notify ? decision.matching : restocked;
+          const best = shown.reduce((a, b) => (b.price < a.price ? b : a));
+          const isLine = current.variants.length > 0;
           const list = dealsByEmail.get(email) ?? [];
           list.push({
             productId: product.id,
@@ -79,9 +88,10 @@ export async function checkPrices(deps: CheckPricesDeps): Promise<CheckPricesRes
             price: best.price,
             listPrice: best.listPrice,
             targetPrice: watch.targetPrice,
-            reasons: decision.reasons,
-            variants: reading.variants?.length ? decision.matching.map((o) => (o as ProductVariant).name) : [],
-            insight: reading.variants?.length ? null : insight,
+            reasons: [...(decision.notify ? decision.reasons : []), ...(restocked.length > 0 ? (["back_in_stock"] as const) : [])],
+            variants: isLine && decision.notify ? decision.matching.map((o) => (o as ProductVariant).name) : [],
+            restockedVariants: isLine ? restocked.map((o) => o.name!) : [],
+            insight: isLine ? null : insight,
           });
           dealsByEmail.set(email, list);
         }
@@ -125,15 +135,14 @@ async function readProduct(
   product: Product,
   result: CheckPricesResult,
   log: (message: string) => void,
-): Promise<{ reading: PriceReading; insight: PriceInsight | null } | null> {
+): Promise<{ reading: PriceReading; insight: PriceInsight | null; restocks: RestockTimes } | null> {
   const checkedAt = deps.clock.now();
   try {
     const reading = await deps.priceReader.read(product.url);
-    await deps.products.recordReading(product.id, reading, checkedAt);
-    const insight = await refreshPriceInsight(deps.products, product.id, checkedAt);
+    const { insight, restocks } = await recordProductReading(deps.products, product, reading, checkedAt);
     result.checked++;
     log(`${product.store} · ${reading.name}: ${reading.price}${reading.listPrice ? ` (antes ${reading.listPrice})` : ""}`);
-    return { reading, insight };
+    return { reading, insight, restocks };
   } catch (error) {
     const message = errorMessage(error);
     const failuresInARow = await deps.products.recordError(product.id, message, checkedAt);

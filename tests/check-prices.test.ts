@@ -560,6 +560,115 @@ describe("flujo completo con base de datos", () => {
     });
   });
 
+  describe("aviso de stock", () => {
+    let now: number;
+    const later = () => {
+      now += 12 * 60 * 60 * 1000;
+    };
+    const restockOnly = { notifyOnSale: false, targetPrice: null, notifyOnRestock: true };
+
+    beforeEach(() => {
+      now = Date.now() + 60 * 1000;
+      clock.now = () => new Date(now);
+    });
+
+    async function followWith(userId: string, url: string, settings: typeof restockOnly) {
+      const result = await watches.add(userId, url, settings);
+      if (result.status !== "added") throw new Error(result.status);
+      return result.watchId;
+    }
+
+    it("avisa una vez cuando un producto agotado vuelve, aunque 'Actualizar precio' lo haya visto primero", async () => {
+      const ana = await newUser("ana@correo.cl");
+      const bea = await newUser("bea@correo.cl");
+      reader.prices.set(URL_A, { available: false });
+      const anaWatch = await followWith(ana.id, URL_A, restockOnly);
+      await follow(bea.id, URL_A); // Bea solo quiere rebajas.
+
+      later();
+      await run();
+      expect(notifier.sent).toHaveLength(0);
+
+      // Ana actualiza a mano y ve que volvió: el email sale igual en la revisión.
+      later();
+      reader.prices.set(URL_A, { available: true });
+      expect(await watches.refresh(ana.id, anaWatch)).toBe("updated");
+      expect(notifier.sent).toHaveLength(0);
+      later();
+      await run();
+      expect(notifier.sent.map((s) => s.to)).toEqual(["ana@correo.cl"]);
+      expect(notifier.sent[0].deals[0]).toMatchObject({ reasons: ["back_in_stock"], price: 5000, restockedVariants: [] });
+
+      // No se repite; si se agota y vuelve otra vez, se avisa de nuevo.
+      later();
+      await run();
+      reader.prices.set(URL_A, { available: false });
+      later();
+      await run();
+      reader.prices.set(URL_A, { available: true });
+      later();
+      await run();
+      expect(notifier.sent).toHaveLength(2);
+    });
+
+    it("en una línea avisa solo por los colores que sigue, y junta stock con oferta en un mismo aviso", async () => {
+      const ana = await newUser("ana@correo.cl");
+      const line = (available: Record<string, boolean>, sale: string[] = []) => ({
+        name: "Roma",
+        price: 2390,
+        variants: ["Beige", "Lila", "Negro"].map((name) => ({
+          key: name.toLowerCase(),
+          name,
+          price: sale.includes(name) ? 2032 : 2390,
+          listPrice: sale.includes(name) ? 2390 : null,
+          available: available[name] ?? true,
+          url: null,
+          imageUrl: null,
+        })),
+      });
+      reader.prices.set(URL_A, line({ Lila: false, Negro: false }));
+      const watchId = await followWith(ana.id, URL_A, { ...restockOnly, notifyOnSale: true });
+      await watches.selectVariants(ana.id, watchId, ["beige", "negro"]);
+
+      // Vuelve Lila (desmarcada): nada.
+      later();
+      reader.prices.set(URL_A, line({ Negro: false }));
+      await run();
+      expect(notifier.sent).toHaveLength(0);
+
+      // Vuelve Negro y Beige entra en oferta: un solo aviso con ambos motivos.
+      later();
+      reader.prices.set(URL_A, line({}, ["Beige"]));
+      await run();
+      expect(notifier.sent).toHaveLength(1);
+      expect(notifier.sent[0].deals[0]).toMatchObject({
+        reasons: ["on_sale", "back_in_stock"],
+        variants: ["Beige"],
+        restockedVariants: ["Negro"],
+        price: 2032,
+      });
+    });
+
+    it("al activar el aviso no avisa de un regreso anterior, y exige al menos una condición", async () => {
+      const ana = await newUser("ana@correo.cl");
+      reader.prices.set(URL_A, { available: false });
+      const watchId = await follow(ana.id, URL_A);
+      later();
+      reader.prices.set(URL_A, { available: true });
+      await run();
+
+      later();
+      await watches.update(ana.id, watchId, restockOnly);
+      later();
+      await run();
+      expect(notifier.sent).toHaveLength(0);
+
+      await expect(
+        watches.update(ana.id, watchId, { notifyOnSale: false, targetPrice: null, notifyOnRestock: false }),
+      ).rejects.toThrow("al menos una condición");
+    });
+  });
+
   it("un usuario no puede ver ni borrar productos de otro", async () => {
     const ana = await newUser("ana@correo.cl");
     const bea = await newUser("bea@correo.cl");

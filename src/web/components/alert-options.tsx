@@ -2,9 +2,11 @@
 export function AlertOptions({
   notifyOnSale = true,
   targetPrice = null,
+  notifyOnRestock = false,
 }: {
   notifyOnSale?: boolean;
   targetPrice?: number | null;
+  notifyOnRestock?: boolean;
 }) {
   return (
     <fieldset className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
@@ -24,6 +26,15 @@ export function AlertOptions({
           aria-label="Precio objetivo"
         />
         o menos
+      </label>
+      <label className="flex items-center gap-2">
+        <input
+          type="checkbox"
+          name="notifyOnRestock"
+          defaultChecked={notifyOnRestock}
+          className="size-4 accent-(--sale)"
+        />
+        Cuando vuelva a haber stock
       </label>
     </fieldset>
   );

@@ -42,6 +42,10 @@ export class DrizzleWatchRepository implements WatchRepository {
       .where(eq(watches.id, watchId));
   }
 
+  async markRestockNotified(watchId: string, at: Date): Promise<void> {
+    await this.db.update(watches).set({ lastRestockNotifiedAt: at }).where(eq(watches.id, watchId));
+  }
+
   async setExcludedVariants(watchId: string, keys: string[]): Promise<void> {
     await this.db.update(watches).set({ excludedVariants: keys }).where(eq(watches.id, watchId));
   }

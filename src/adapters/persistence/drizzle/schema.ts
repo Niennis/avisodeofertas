@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import { DEFAULT_PALETTE, PALETTES } from "@/core/domain/user";
 import { boolean, index, integer, jsonb, numeric, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 import type { PriceInsight } from "@/core/domain/price-insight";
+import type { RestockTimes } from "@/core/domain/restock";
 import type { ProductVariant } from "@/core/domain/variants";
 
 /** Los precios se guardan como `numeric` para no perder decimales en monedas que los usan. */
@@ -58,6 +59,8 @@ export const products = pgTable("products", {
   variants: jsonb("variants").$type<ProductVariant[]>().notNull().default([]),
   /** Análisis del historial (¿es el precio más bajo?, ¿la rebaja es real?), recalculado en cada lectura. */
   priceInsight: jsonb("price_insight").$type<PriceInsight>(),
+  /** Cuándo volvió a haber stock de cada opción (clave del color, o "" en un producto simple). */
+  restocks: jsonb("restocks").$type<RestockTimes>().notNull().default({}),
   lastCheckedAt: timestamp("last_checked_at", { withTimezone: true }),
   lastError: text("last_error"),
   consecutiveFailures: integer("consecutive_failures").notNull().default(0),
@@ -105,6 +108,8 @@ export const watches = pgTable(
       .references(() => products.id, { onDelete: "cascade" }),
     targetPrice: money("target_price"),
     notifyOnSale: boolean("notify_on_sale").notNull().default(true),
+    notifyOnRestock: boolean("notify_on_restock").notNull().default(false),
+    lastRestockNotifiedAt: timestamp("last_restock_notified_at", { withTimezone: true }),
     lastNotifiedPrice: money("last_notified_price"),
     lastNotifiedAt: timestamp("last_notified_at", { withTimezone: true }),
     excludedVariants: jsonb("excluded_variants").$type<string[]>().notNull().default([]),

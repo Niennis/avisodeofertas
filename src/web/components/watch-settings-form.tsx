@@ -9,17 +9,19 @@ export function WatchSettingsForm({
   watchId,
   notifyOnSale,
   targetPrice,
+  notifyOnRestock,
 }: {
   watchId: string;
   notifyOnSale: boolean;
   targetPrice: number | null;
+  notifyOnRestock: boolean;
 }) {
   const [state, formAction, pending] = useActionState(updateWatchAction, {});
   const submit = useSubmitWithoutReset(formAction);
   return (
     <form onSubmit={submit} className="flex flex-col gap-3">
       <input type="hidden" name="watchId" value={watchId} />
-      <AlertOptions notifyOnSale={notifyOnSale} targetPrice={targetPrice} />
+      <AlertOptions notifyOnSale={notifyOnSale} targetPrice={targetPrice} notifyOnRestock={notifyOnRestock} />
       <div className="flex items-center gap-3">
         <button className="btn" disabled={pending}>
           {pending ? "Guardando…" : "Guardar cambios"}

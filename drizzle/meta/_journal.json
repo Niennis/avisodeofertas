@@ -57,6 +57,13 @@
       "when": 1790808252316,
       "tag": "0007_price_insight",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1790809190575,
+      "tag": "0008_restock_alerts",
+      "breakpoints": true
     }
   ]
 }

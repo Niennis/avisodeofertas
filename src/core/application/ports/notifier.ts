@@ -15,6 +15,8 @@ export interface Deal {
   reasons: AlertReason[];
   /** En una línea con varios colores: los colores que cumplen la condición (vacío en productos simples). */
   variants: string[];
+  /** En una línea: los colores que volvieron a tener stock. */
+  restockedVariants: string[];
   /** ¿La rebaja es real?, ¿es el precio más bajo? Solo en productos simples (en una línea el historial es de otro color). */
   insight: PriceInsight | null;
 }

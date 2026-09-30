@@ -49,6 +49,7 @@ function readSettings(form: FormData): WatchSettings {
   return {
     targetPrice: raw ? Number(raw) : null,
     notifyOnSale: form.get("notifyOnSale") === "on",
+    notifyOnRestock: form.get("notifyOnRestock") === "on",
   };
 }
 

@@ -14,7 +14,9 @@ export function WatchCard({ watch, emailNotifications }: { watch: WatchWithProdu
   const conditions = [
     watch.notifyOnSale && "si lo rebajan",
     watch.targetPrice != null && `si cuesta ${formatMoney(watch.targetPrice, product.currency)} o menos`,
-  ].filter(Boolean);
+    // Sin emails, la tarjeta muestra "En oferta si…": el stock no aplica.
+    emailNotifications && watch.notifyOnRestock && "si vuelve el stock",
+  ].filter((c): c is string => Boolean(c));
 
   return (
     <li>
@@ -69,15 +71,28 @@ export function WatchCard({ watch, emailNotifications }: { watch: WatchWithProdu
                 No se pudo revisar
               </span>
             ) : (
-              <>
-                {emailNotifications ? "Te avisamos" : "En oferta"} {conditions.join(" o ")}
-              </>
+              conditions.length > 0 && (
+                <>
+                  {emailNotifications ? "Te avisamos" : "En oferta"} {joinConditions(conditions)}
+                </>
+              )
             )}
           </p>
         </div>
       </article>
     </li>
   );
+}
+
+/**
+ * "si lo rebajan o si vuelve el stock". Con tres, o si alguna ya lleva "o" ("$X o menos"),
+ * la última va con coma: "si cuesta $X o menos, o si vuelve el stock".
+ */
+function joinConditions(conditions: string[]): string {
+  if (conditions.length < 2) return conditions.join("");
+  const rest = conditions.slice(0, -1);
+  const comma = conditions.length > 2 || rest.some((c) => c.includes(" o "));
+  return `${rest.join(", ")}${comma ? "," : ""} o ${conditions.at(-1)}`;
 }
 
 /** "38 colores · 12 en oferta" o "3 de 38 colores · todos en oferta". */

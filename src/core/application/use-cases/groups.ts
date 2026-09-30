@@ -61,7 +61,11 @@ export class GroupService {
     let otherId = mine.find((w) => sameProductUrl(w.product.url, url))?.id;
     if (otherId === anchor.id) throw new DomainError("Ese enlace es el mismo producto; pega el de otra tienda.");
     if (!otherId) {
-      const settings = { notifyOnSale: anchor.notifyOnSale, targetPrice: anchor.targetPrice };
+      const settings = {
+        notifyOnSale: anchor.notifyOnSale,
+        targetPrice: anchor.targetPrice,
+        notifyOnRestock: anchor.notifyOnRestock,
+      };
       const result = await this.deps.watchService.add(userId, url, settings, "separate");
       if (result.status === "line-has-colors") {
         throw new DomainError(`Ese enlace es la línea ${result.name}, con colores que ya sigues por separado. Agrégala desde el formulario principal.`);
