@@ -20,7 +20,7 @@ export function WatchCard({ watch, emailNotifications }: { watch: WatchWithProdu
 
   return (
     <li>
-      <article className="card relative flex h-full flex-col overflow-hidden transition-colors hover:border-ink has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-2 has-[a:focus-visible]:outline-ink">
+      <article className="group card relative flex h-full cursor-pointer flex-col overflow-hidden transition-colors hover:border-ink has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-2 has-[a:focus-visible]:outline-ink">
         <div className={`relative aspect-square ${product.imageUrl ? "bg-white" : "bg-line/40"}`}>
           {product.imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element -- imágenes de muchas tiendas distintas
@@ -31,7 +31,7 @@ export function WatchCard({ watch, emailNotifications }: { watch: WatchWithProdu
               height={400}
               loading="lazy"
               decoding="async"
-              className="absolute inset-0 size-full object-contain p-3"
+              className="absolute inset-0 size-full object-contain p-3 transition-transform duration-300 motion-safe:group-hover:scale-105"
             />
           ) : (
             <span className="absolute inset-0 grid place-items-center text-xs text-muted">Sin foto</span>
@@ -45,8 +45,9 @@ export function WatchCard({ watch, emailNotifications }: { watch: WatchWithProdu
           )}
         </div>
 
-        {/* La etiqueta cuelga sobre el borde de la foto. */}
-        <div className="relative flex flex-1 flex-col gap-1 p-3 pt-8">
+        {/* La etiqueta cuelga sobre el borde de la foto. Va en una franja sin alto, aparte del texto:
+            así el bloque de texto no es "relative" y el enlace cubre toda la tarjeta, foto incluida. */}
+        <div className="relative h-0">
           <div className="absolute top-0 left-2 -translate-y-1/2">
             <PriceTag
               price={summary?.price ?? null}
@@ -56,9 +57,14 @@ export function WatchCard({ watch, emailNotifications }: { watch: WatchWithProdu
               from={hasPriceRange}
             />
           </div>
+        </div>
+        <div className="flex flex-1 flex-col gap-1 p-3 pt-8">
           <p className="text-xs text-muted">{product.store}</p>
           <h3 className="line-clamp-2 text-sm leading-snug font-semibold sm:text-base">
-            <Link href={`/productos/${watch.id}`} className="outline-none after:absolute after:inset-0">
+            <Link
+              href={`/productos/${watch.id}`}
+              className="underline-offset-4 outline-none group-hover:underline after:absolute after:inset-0"
+            >
               {product.name}
             </Link>
           </h3>

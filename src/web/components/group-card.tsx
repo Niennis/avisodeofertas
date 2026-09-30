@@ -14,7 +14,7 @@ export function GroupCard({ group, members }: { group: ProductGroup; members: Wa
 
   return (
     <li>
-      <article className="card relative flex h-full flex-col overflow-hidden transition-colors hover:border-ink has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-2 has-[a:focus-visible]:outline-ink">
+      <article className="group card relative flex h-full cursor-pointer flex-col overflow-hidden transition-colors hover:border-ink has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-2 has-[a:focus-visible]:outline-ink">
         <div className={`relative aspect-square ${imageUrl ? "bg-white" : "bg-line/40"}`}>
           {imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element -- imágenes de muchas tiendas distintas
@@ -25,7 +25,7 @@ export function GroupCard({ group, members }: { group: ProductGroup; members: Wa
               height={400}
               loading="lazy"
               decoding="async"
-              className="absolute inset-0 size-full object-contain p-3"
+              className="absolute inset-0 size-full object-contain p-3 transition-transform duration-300 motion-safe:group-hover:scale-105"
             />
           ) : (
             <span className="absolute inset-0 grid place-items-center text-xs text-muted">Sin foto</span>
@@ -35,7 +35,8 @@ export function GroupCard({ group, members }: { group: ProductGroup; members: Wa
           </span>
         </div>
 
-        <div className="relative flex flex-1 flex-col gap-1 p-3 pt-8">
+        {/* La etiqueta cuelga sobre el borde de la foto; va aparte para que el enlace cubra toda la tarjeta. */}
+        <div className="relative h-0">
           <div className="absolute top-0 left-2 -translate-y-1/2">
             <PriceTag
               price={best?.summary.price ?? null}
@@ -45,9 +46,14 @@ export function GroupCard({ group, members }: { group: ProductGroup; members: Wa
               from={members.length > 1}
             />
           </div>
+        </div>
+        <div className="flex flex-1 flex-col gap-1 p-3 pt-8">
           <p className="text-xs text-muted">{best ? `Mejor precio en ${best.watch.product.store}` : "Sin precio"}</p>
           <h3 className="line-clamp-2 text-sm leading-snug font-semibold sm:text-base">
-            <Link href={`/grupos/${group.id}`} className="outline-none after:absolute after:inset-0">
+            <Link
+              href={`/grupos/${group.id}`}
+              className="underline-offset-4 outline-none group-hover:underline after:absolute after:inset-0"
+            >
               {group.name}
             </Link>
           </h3>
