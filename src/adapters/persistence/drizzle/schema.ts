@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import { DEFAULT_PALETTE, PALETTES } from "@/core/domain/user";
 import { boolean, index, integer, jsonb, numeric, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+import type { PriceInsight } from "@/core/domain/price-insight";
 import type { ProductVariant } from "@/core/domain/variants";
 
 /** Los precios se guardan como `numeric` para no perder decimales en monedas que los usan. */
@@ -55,6 +56,8 @@ export const products = pgTable("products", {
   available: boolean("available"),
   /** Colores de la línea con su precio actual; vacío en productos simples. */
   variants: jsonb("variants").$type<ProductVariant[]>().notNull().default([]),
+  /** Análisis del historial (¿es el precio más bajo?, ¿la rebaja es real?), recalculado en cada lectura. */
+  priceInsight: jsonb("price_insight").$type<PriceInsight>(),
   lastCheckedAt: timestamp("last_checked_at", { withTimezone: true }),
   lastError: text("last_error"),
   consecutiveFailures: integer("consecutive_failures").notNull().default(0),

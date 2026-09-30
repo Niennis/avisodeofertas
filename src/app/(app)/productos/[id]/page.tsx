@@ -7,6 +7,7 @@ import { watchSummary } from "@/core/domain/watch";
 import { formatDateTime } from "@/lib/format";
 import { removeWatchAction } from "@/web/actions";
 import { PriceChart } from "@/web/components/price-chart";
+import { PriceInsightNote } from "@/web/components/price-insight";
 import { PriceTag } from "@/web/components/price-tag";
 import { RefreshPriceButton } from "@/web/components/price-refresh";
 import { StoreAdder } from "@/web/components/store-adder";
@@ -65,6 +66,13 @@ export default async function ProductPage({ params }: PageProps<"/productos/[id]
               from={new Set(included.map((v) => v.price)).size > 1}
             />
           </div>
+          <PriceInsightNote
+            insight={product.priceInsight}
+            price={product.price}
+            listPrice={product.listPrice}
+            currency={product.currency}
+            isLine={isLine}
+          />
           <p className="text-sm text-muted">
             {summary?.available === false && "Agotado · "}
             {product.lastCheckedAt && `Revisado ${formatDateTime(product.lastCheckedAt)} · `}

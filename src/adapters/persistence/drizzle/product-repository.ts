@@ -1,6 +1,7 @@
 import { and, asc, eq, exists, gte, notExists, sql } from "drizzle-orm";
 import type { NewProduct, ProductRepository } from "@/core/application/ports/product-repository";
 import type { PriceReading } from "@/core/domain/price";
+import type { PriceInsight } from "@/core/domain/price-insight";
 import type { PriceSnapshot, Product } from "@/core/domain/product";
 import type { Database } from "./db";
 import { priceSnapshots, products, watches } from "./schema";
@@ -37,6 +38,10 @@ export class DrizzleProductRepository implements ProductRepository {
       .set({ ...readingColumns(reading), lastCheckedAt: checkedAt, lastError: null, consecutiveFailures: 0 })
       .where(eq(products.id, productId));
     await this.insertSnapshot(productId, reading, checkedAt);
+  }
+
+  async savePriceInsight(productId: string, insight: PriceInsight | null): Promise<void> {
+    await this.db.update(products).set({ priceInsight: insight }).where(eq(products.id, productId));
   }
 
   async recordError(productId: string, error: string, checkedAt: Date): Promise<number> {

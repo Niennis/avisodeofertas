@@ -1,4 +1,5 @@
 import type { PriceReading } from "@/core/domain/price";
+import type { PriceInsight } from "@/core/domain/price-insight";
 import type { PriceSnapshot, Product } from "@/core/domain/product";
 
 export interface NewProduct {
@@ -15,6 +16,7 @@ export interface ProductRepository {
   create(input: NewProduct): Promise<Product>;
   /** Actualiza el precio actual y agrega la lectura al historial. */
   recordReading(productId: string, reading: PriceReading, checkedAt: Date): Promise<void>;
+  savePriceInsight(productId: string, insight: PriceInsight | null): Promise<void>;
   /** Guarda el error y devuelve cuántas revisiones seguidas lleva fallando. */
   recordError(productId: string, error: string, checkedAt: Date): Promise<number>;
   /** Productos que al menos un usuario sigue. */

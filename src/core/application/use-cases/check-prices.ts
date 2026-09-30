@@ -4,12 +4,14 @@ import { evaluateAlertOptions, type PriceOption } from "@/core/domain/alert-poli
 import { includedVariants, type ProductVariant } from "@/core/domain/variants";
 import type { Product } from "@/core/domain/product";
 import type { PriceReading } from "@/core/domain/price";
+import type { PriceInsight } from "@/core/domain/price-insight";
 import type { Clock } from "../ports/clock";
 import type { Deal, Notifier } from "../ports/notifier";
 import type { PriceReader } from "../ports/price-reader";
 import type { FailureRepository } from "../ports/failure-repository";
 import type { ProductRepository } from "../ports/product-repository";
 import type { WatchRepository } from "../ports/watch-repository";
+import { refreshPriceInsight } from "./price-insight";
 
 export interface CheckPricesDeps {
   products: ProductRepository;
@@ -48,8 +50,9 @@ export async function checkPrices(deps: CheckPricesDeps): Promise<CheckPricesRes
     [...byStore.values()].map(async (storeProducts) => {
       for (const [index, product] of storeProducts.entries()) {
         if (index > 0 && deps.delayBetweenRequestsMs) await sleep(deps.delayBetweenRequestsMs);
-        const reading = await readProduct(deps, product, result, log);
-        if (!reading) continue;
+        const read = await readProduct(deps, product, result, log);
+        if (!read) continue;
+        const { reading, insight } = read;
 
         for (const { watch, email, emailNotifications } of await watches.listRecipients(product.id)) {
           // Sin avisos por email no se marca nada como avisado: si los reactiva,
@@ -78,6 +81,7 @@ export async function checkPrices(deps: CheckPricesDeps): Promise<CheckPricesRes
             targetPrice: watch.targetPrice,
             reasons: decision.reasons,
             variants: reading.variants?.length ? decision.matching.map((o) => (o as ProductVariant).name) : [],
+            insight: reading.variants?.length ? null : insight,
           });
           dealsByEmail.set(email, list);
         }
@@ -121,14 +125,15 @@ async function readProduct(
   product: Product,
   result: CheckPricesResult,
   log: (message: string) => void,
-): Promise<PriceReading | null> {
+): Promise<{ reading: PriceReading; insight: PriceInsight | null } | null> {
   const checkedAt = deps.clock.now();
   try {
     const reading = await deps.priceReader.read(product.url);
     await deps.products.recordReading(product.id, reading, checkedAt);
+    const insight = await refreshPriceInsight(deps.products, product.id, checkedAt);
     result.checked++;
     log(`${product.store} · ${reading.name}: ${reading.price}${reading.listPrice ? ` (antes ${reading.listPrice})` : ""}`);
-    return reading;
+    return { reading, insight };
   } catch (error) {
     const message = errorMessage(error);
     const failuresInARow = await deps.products.recordError(product.id, message, checkedAt);

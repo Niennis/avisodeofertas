@@ -44,6 +44,7 @@ function watch(
       listPrice: options.listPrice ?? null,
       available: true,
       variants: [],
+      priceInsight: null,
       lastCheckedAt: createdAt,
       lastError: options.lastError ?? null,
       consecutiveFailures: 0,

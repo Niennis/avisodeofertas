@@ -531,6 +531,35 @@ describe("flujo completo con base de datos", () => {
     await expect(watches.refresh(bea.id, watchId)).rejects.toThrow("No encontramos");
   });
 
+  it("analiza el historial: marca como dudosa la rebaja después de subir el precio", async () => {
+    const ana = await newUser("ana@correo.cl");
+    let now = Date.now();
+    clock.now = () => new Date(now);
+    reader.prices.set(URL_A, { price: 10000 });
+    const watchId = await follow(ana.id, URL_A);
+    const day = async (price: number, listPrice: number | null = null) => {
+      now += 24 * 60 * 60 * 1000;
+      reader.prices.set(URL_A, { price, listPrice });
+      await run();
+    };
+
+    for (let i = 0; i < 20; i++) await day(10000);
+    for (let i = 0; i < 10; i++) await day(13000);
+    await day(10000, 13000);
+
+    const { watch } = await watches.detail(ana.id, watchId);
+    expect(watch.product.priceInsight?.sale).toEqual({ kind: "doubtful", referencePrice: 10000 });
+    const deal = notifier.sent.at(-1)!.deals[0];
+    expect(deal.insight?.sale?.kind).toBe("doubtful");
+
+    // Si después baja de verdad, la rebaja pasa a ser real (respecto de los $10.000 de antes).
+    for (let i = 0; i < 3; i++) await day(8000, 13000);
+    expect((await watches.detail(ana.id, watchId)).watch.product.priceInsight).toMatchObject({
+      isLowest: true,
+      sale: { kind: "real", referencePrice: 10000, realDiscount: 20 },
+    });
+  });
+
   it("un usuario no puede ver ni borrar productos de otro", async () => {
     const ana = await newUser("ana@correo.cl");
     const bea = await newUser("bea@correo.cl");

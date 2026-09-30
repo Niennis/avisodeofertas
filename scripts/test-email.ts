@@ -27,6 +27,13 @@ async function main() {
       targetPrice: null,
       reasons: ["on_sale"],
       variants: [],
+      insight: {
+        historyDays: 90,
+        since: "2026-07-01T12:00:00.000Z",
+        lowest: { price: 1249, at: "2026-09-28T12:00:00.000Z" },
+        isLowest: true,
+        sale: { kind: "real", referencePrice: 1470, realDiscount: 15 },
+      },
     },
   ]);
   console.log(`Email de prueba enviado a ${to}. Revisa tu bandeja de entrada (y la carpeta de spam).`);

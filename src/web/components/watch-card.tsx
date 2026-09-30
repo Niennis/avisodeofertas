@@ -3,6 +3,7 @@ import { isOnSale } from "@/core/domain/price";
 import { includedVariants } from "@/core/domain/variants";
 import { watchSummary, type WatchWithProduct } from "@/core/domain/watch";
 import { formatMoney } from "@/lib/format";
+import { PriceInsightBadge } from "./price-insight";
 import { PriceTag } from "./price-tag";
 
 export function WatchCard({ watch, emailNotifications }: { watch: WatchWithProduct; emailNotifications: boolean }) {
@@ -33,6 +34,8 @@ export function WatchCard({ watch, emailNotifications }: { watch: WatchWithProdu
           ) : (
             <span className="absolute inset-0 grid place-items-center text-xs text-muted">Sin foto</span>
           )}
+          {/* En las líneas el historial es del precio destacado, que puede ser otro color: solo en la ficha. */}
+          {product.variants.length <= 1 && <PriceInsightBadge insight={product.priceInsight} />}
           {product.available === false && (
             <span className="absolute top-2 right-2 rounded-full bg-ink px-2.5 py-0.5 text-xs font-medium text-bg">
               Agotado

@@ -1,6 +1,7 @@
 import type { Deal } from "@/core/application/ports/notifier";
 import { discountPercent } from "@/core/domain/price";
 import { formatMoney } from "@/lib/format";
+import { insightLines, type InsightLine } from "@/lib/price-insight-text";
 
 function escapeHtml(text: string): string {
   return text.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
@@ -27,6 +28,18 @@ function reasonText(deal: Deal): string {
   return parts.join(" · ");
 }
 
+/** La frase más útil del historial: si la rebaja es dudosa o real, o si es el precio más bajo. */
+function insightLine(deal: Deal): InsightLine | null {
+  if (!deal.insight) return null;
+  return insightLines(deal.insight, deal).find((line) => line.tone !== "neutral") ?? null;
+}
+
+function insightHtml(line: InsightLine | null): string {
+  if (!line) return "";
+  const color = line.tone === "warn" ? "#b3261e" : "#2f7a6b";
+  return `<div style="font-size:13px;color:${color};margin-top:4px">${line.tone === "warn" ? "⚠️ " : "✓ "}${escapeHtml(line.text)}</div>`;
+}
+
 export function dealEmailSubject(deals: Deal[]): string {
   return deals.length === 1
     ? `Oferta: ${deals[0].name} a ${formatMoney(deals[0].price, deals[0].currency)}`
@@ -36,7 +49,9 @@ export function dealEmailSubject(deals: Deal[]): string {
 export function dealEmailText(deals: Deal[], appUrl: string | null): string {
   const lines = deals.map((d) => {
     const before = d.listPrice ? ` (antes ${formatMoney(d.listPrice, d.currency)})` : "";
-    return `• ${d.name} — ${d.store}\n  ${formatMoney(d.price, d.currency)}${before} · ${reasonText(d)}\n  ${d.url}`;
+    const insight = insightLine(d);
+    const insightText = insight ? `\n  ${insight.text}` : "";
+    return `• ${d.name} — ${d.store}\n  ${formatMoney(d.price, d.currency)}${before} · ${reasonText(d)}${insightText}\n  ${d.url}`;
   });
   return [...lines, "", appUrl ? `Administra tus productos en ${appUrl}` : ""].join("\n");
 }
@@ -57,6 +72,7 @@ export function dealEmailHtml(deals: Deal[], appUrl: string | null): string {
     <a href="${escapeHtml(d.url)}" style="color:#2b2724;font-weight:600;text-decoration:none">${escapeHtml(d.name)}</a>
     <div style="margin-top:4px;font-size:18px;font-weight:700;color:#b4451f">${formatMoney(d.price, d.currency)}${before}</div>
     <div style="font-size:13px;color:#5c5650">${escapeHtml(reasonText(d))}</div>
+    ${insightHtml(insightLine(d))}
   </td>
 </tr>`;
     })

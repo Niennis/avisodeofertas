@@ -11,6 +11,7 @@ import type { FailureRepository } from "../ports/failure-repository";
 import type { GroupRepository } from "../ports/group-repository";
 import type { WatchRepository } from "../ports/watch-repository";
 import { dissolveIfTooSmall } from "./groups";
+import { refreshPriceInsight } from "./price-insight";
 
 const HISTORY_DAYS = 180;
 /** "Actualizar precio" no vuelve a consultar la tienda si se revisó hace menos que esto. */
@@ -85,7 +86,9 @@ export class WatchService {
     let product = await products.findByUrl(url);
     if (!product) {
       const reading = await this.readReportingFailures(userId, url);
-      product = await products.create({ url, store: storeNameFromUrl(url), reading, checkedAt: clock.now() });
+      const checkedAt = clock.now();
+      product = await products.create({ url, store: storeNameFromUrl(url), reading, checkedAt });
+      await refreshPriceInsight(products, product.id, checkedAt);
     }
 
     const separate = product.variants.length > 1 ? findColorsFollowedSeparately(product, mine) : [];
@@ -176,6 +179,7 @@ export class WatchService {
       throw new DomainError("No pudimos consultar la tienda en este momento. Intenta de nuevo en un rato.");
     }
     await products.recordReading(product.id, reading, now);
+    await refreshPriceInsight(products, product.id, now);
     return "updated";
   }
 

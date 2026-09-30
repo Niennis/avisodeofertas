@@ -1,0 +1,1 @@
+ALTER TABLE "products" ADD COLUMN "price_insight" jsonb;
