@@ -10,11 +10,11 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
   const { admin } = await getContainer();
   return (
     <div className="mx-auto w-full max-w-6xl px-4 pb-16 sm:px-6">
-      <header className="flex items-center justify-between gap-4 py-5">
+      <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 py-5">
         <Link href="/" className="font-(family-name:--font-display) font-bold">
           Alerta de ofertas
         </Link>
-        <nav className="flex items-center gap-3 text-sm text-muted sm:gap-4">
+        <nav aria-label="Principal" className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted sm:gap-x-4">
           <ThemeToggle />
           {admin.isAdmin(user) && (
             <Link href="/admin" className="hover:text-ink">
@@ -29,7 +29,7 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
           </form>
         </nav>
       </header>
-      {children}
+      <div id="contenido">{children}</div>
       <PaletteSync palette={user.palette} />
     </div>
   );

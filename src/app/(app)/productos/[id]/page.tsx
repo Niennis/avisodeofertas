@@ -80,7 +80,7 @@ export default async function ProductPage({ params }: PageProps<"/productos/[id]
               Ver en la tienda
             </a>
           </p>
-          {product.lastError && <p className="text-sm text-danger">Última revisión con error: {product.lastError}</p>}
+          {product.lastError && <p className="text-sm text-danger-text">Última revisión con error: {product.lastError}</p>}
           <RefreshPriceButton watchId={watch.id} />
         </div>
       </section>
@@ -149,7 +149,7 @@ export default async function ProductPage({ params }: PageProps<"/productos/[id]
 
       <form action={removeWatchAction} className="border-t border-line pt-6">
         <input type="hidden" name="watchId" value={watch.id} />
-        <button className="btn btn-quiet text-danger">Dejar de seguir este producto</button>
+        <button className="btn btn-quiet text-danger-text">Dejar de seguir este producto</button>
       </form>
     </main>
   );

@@ -77,14 +77,14 @@ export default async function GroupPage({ params }: PageProps<"/grupos/[id]">) {
                   <p className="text-sm font-semibold">
                     {member.product.store}
                     {isBest && (
-                      <span className="ml-2 rounded-full bg-sale-soft px-2 py-0.5 text-xs text-sale">Más barato</span>
+                      <span className="ml-2 rounded-full bg-sale-soft px-2 py-0.5 text-xs text-sale-text">Más barato</span>
                     )}
                   </p>
                   <p className="truncate text-sm text-muted" title={member.product.name}>
                     {member.product.name}
                   </p>
                   {member.product.lastError ? (
-                    <p className="text-xs text-danger">No se pudo revisar</p>
+                    <p className="text-xs text-danger-text">No se pudo revisar</p>
                   ) : (
                     summary?.available === false && <p className="text-xs text-muted">Agotado</p>
                   )}
@@ -110,7 +110,7 @@ export default async function GroupPage({ params }: PageProps<"/grupos/[id]">) {
                   <form action={removeFromGroupAction}>
                     <input type="hidden" name="groupId" value={group.id} />
                     <input type="hidden" name="watchId" value={member.id} />
-                    <button className="text-muted underline underline-offset-4 hover:text-danger">Quitar</button>
+                    <button className="text-muted underline underline-offset-4 hover:text-danger-text">Quitar</button>
                   </form>
                 </div>
               </li>

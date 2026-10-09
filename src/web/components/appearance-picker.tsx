@@ -39,7 +39,7 @@ export function AppearancePicker({ current }: { current: Palette }) {
   return (
     <fieldset className="flex flex-col gap-3">
       <legend className="sr-only">Paleta de colores</legend>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 min-[22em]:grid-cols-2 sm:grid-cols-4">
         {OPTIONS.map((option) => (
           <label key={option.value} className="group cursor-pointer">
             <input

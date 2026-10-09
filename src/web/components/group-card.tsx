@@ -49,7 +49,7 @@ export function GroupCard({ group, members }: { group: ProductGroup; members: Wa
         </div>
         <div className="flex flex-1 flex-col gap-1 p-3 pt-8">
           <p className="text-xs text-muted">{best ? `Mejor precio en ${best.watch.product.store}` : "Sin precio"}</p>
-          <h3 className="line-clamp-2 text-sm leading-snug font-semibold sm:text-base">
+          <h3 className="text-sm leading-snug font-semibold [overflow-wrap:anywhere] sm:text-base">
             <Link
               href={`/grupos/${group.id}`}
               className="underline-offset-4 outline-none group-hover:underline after:absolute after:inset-0"
@@ -61,7 +61,7 @@ export function GroupCard({ group, members }: { group: ProductGroup; members: Wa
             {deals > 0 ? `${deals} de ${members.length} en oferta` : stores.join(", ")}
           </p>
           <p className="mt-auto pt-1 text-xs text-muted">
-            {hasErrors ? <span className="text-danger">Alguna tienda no se pudo revisar</span> : "Comparando tiendas"}
+            {hasErrors ? <span className="text-danger-text">Alguna tienda no se pudo revisar</span> : "Comparando tiendas"}
           </p>
         </div>
       </article>

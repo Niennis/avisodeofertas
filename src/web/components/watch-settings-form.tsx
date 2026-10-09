@@ -27,8 +27,8 @@ export function WatchSettingsForm({
           {pending ? "Guardando…" : "Guardar cambios"}
         </button>
         <p aria-live="polite" className="text-sm">
-          {state.error && <span className="text-danger">{state.error}</span>}
-          {state.ok && <span className="text-target">{state.ok}</span>}
+          {state.error && <span className="text-danger-text">{state.error}</span>}
+          {state.ok && <span className="text-target-text">{state.ok}</span>}
         </p>
       </div>
     </form>

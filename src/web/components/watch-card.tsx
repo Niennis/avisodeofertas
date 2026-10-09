@@ -60,7 +60,7 @@ export function WatchCard({ watch, emailNotifications }: { watch: WatchWithProdu
         </div>
         <div className="flex flex-1 flex-col gap-1 p-3 pt-8">
           <p className="text-xs text-muted">{product.store}</p>
-          <h3 className="line-clamp-2 text-sm leading-snug font-semibold sm:text-base">
+          <h3 className="text-sm leading-snug font-semibold [overflow-wrap:anywhere] sm:text-base">
             <Link
               href={`/productos/${watch.id}`}
               className="underline-offset-4 outline-none group-hover:underline after:absolute after:inset-0"
@@ -73,7 +73,7 @@ export function WatchCard({ watch, emailNotifications }: { watch: WatchWithProdu
           )}
           <p className="mt-auto pt-1 text-xs text-muted">
             {product.lastError ? (
-              <span className="line-clamp-2 text-danger" title={product.lastError}>
+              <span className="line-clamp-2 text-danger-text" title={product.lastError}>
                 No se pudo revisar
               </span>
             ) : (
@@ -123,4 +123,5 @@ export function WatchCardSkeleton() {
   );
 }
 
-export const cardGridClass = "grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5";
+// Con la letra del navegador agrandada, el corte en `em` deja una sola columna en el celular.
+export const cardGridClass = "grid grid-cols-1 gap-3 min-[22em]:grid-cols-2 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5";

@@ -76,7 +76,7 @@ export function VariantPicker({
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-sm font-medium">{variant.name}</span>
                   <span className="block text-xs text-muted">
-                    <span className={sale ? "font-semibold text-sale" : undefined}>
+                    <span className={sale ? "font-semibold text-sale-text" : undefined}>
                       {formatMoney(variant.price, currency)}
                     </span>
                     {sale && <s className="ml-1.5">{formatMoney(variant.listPrice!, currency)}</s>}
@@ -104,8 +104,8 @@ export function VariantPicker({
           {pending ? "Guardando…" : "Guardar colores"}
         </button>
         <p aria-live="polite" className="text-sm">
-          {state.error && <span className="text-danger">{state.error}</span>}
-          {state.ok && <span className="text-target">{state.ok}</span>}
+          {state.error && <span className="text-danger-text">{state.error}</span>}
+          {state.ok && <span className="text-target-text">{state.ok}</span>}
         </p>
       </div>
     </form>

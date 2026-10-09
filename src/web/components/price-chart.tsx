@@ -62,7 +62,7 @@ export function PriceChart({
             x2={W - PAD.right}
             y1={y(targetPrice)}
             y2={y(targetPrice)}
-            stroke="var(--target)"
+            stroke="var(--target-text)"
             strokeWidth="1.5"
           />
         )}
@@ -75,7 +75,7 @@ export function PriceChart({
             strokeDasharray="4 4"
           />
         )}
-        <path d={stepPath((h) => h.price)} fill="none" stroke="var(--sale)" strokeWidth="2.5" strokeLinejoin="round" />
+        <path d={stepPath((h) => h.price)} fill="none" stroke="var(--sale-text)" strokeWidth="2.5" strokeLinejoin="round" />
         <text x={PAD.left} y={H - 8} fontSize="12" fill="var(--muted)">
           {formatDate(history[0].checkedAt)}
         </text>

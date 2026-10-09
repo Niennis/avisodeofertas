@@ -59,7 +59,7 @@ export default async function AdminPage() {
               </div>
               <div className="flex flex-wrap gap-2">
                 {store.problems.map((problem) => (
-                  <span key={problem} className="rounded-full bg-sale-soft px-2.5 py-0.5 text-xs font-medium text-sale">
+                  <span key={problem} className="rounded-full bg-sale-soft px-2.5 py-0.5 text-xs font-medium text-sale-text">
                     {PROBLEM_LABELS[problem]}
                   </span>
                 ))}

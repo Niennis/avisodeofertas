@@ -37,7 +37,7 @@ export function AuthForm({
         </label>
       )}
       {state.error && (
-        <p role="alert" className="text-sm text-danger">
+        <p role="alert" className="text-sm text-danger-text">
           {state.error}
         </p>
       )}

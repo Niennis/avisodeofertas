@@ -20,8 +20,8 @@ export function GroupNameForm({ groupId, name }: { groupId: string; name: string
         </button>
       </div>
       <p aria-live="polite" className="min-h-5 text-sm">
-        {state.error && <span className="text-danger">{state.error}</span>}
-        {state.ok && <span className="text-target">{state.ok}</span>}
+        {state.error && <span className="text-danger-text">{state.error}</span>}
+        {state.ok && <span className="text-target-text">{state.ok}</span>}
       </p>
     </form>
   );

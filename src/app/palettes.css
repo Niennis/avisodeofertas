@@ -37,6 +37,9 @@
   --danger: #b3261e;
   --btn-bg: #1e2a3a;
   --btn-ink: #eef1ec;
+  --sale-text: #c8285e;
+  --target-text: #2c7671;
+  --danger-text: #b3261e;
 }
 
 [data-theme="dark"],
@@ -57,6 +60,9 @@
   --danger: #f2887f;
   --btn-bg: #e7ebf0;
   --btn-ink: #151b22;
+  --sale-text: #f06c98;
+  --target-text: #5fbab3;
+  --danger-text: #f2887f;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -78,6 +84,9 @@
     --danger: #f2887f;
     --btn-bg: #e7ebf0;
     --btn-ink: #151b22;
+    --sale-text: #f06c98;
+    --target-text: #5fbab3;
+    --danger-text: #f2887f;
   }
 }
 
@@ -112,6 +121,9 @@
   --danger: #d6334c;
   --btn-bg: #ffd35c;
   --btn-ink: #2b2146;
+  --sale-text: #d0005b;
+  --target-text: #137460;
+  --danger-text: #c72841;
 }
 
 [data-theme="dark"][data-palette="caramelo"],
@@ -132,6 +144,9 @@
   --danger: #ff8a96;
   --btn-bg: #ffd35c;
   --btn-ink: #1d1733;
+  --sale-text: #ff85bd;
+  --target-text: #5fe3c2;
+  --danger-text: #ff8a96;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -153,6 +168,9 @@
     --danger: #ff8a96;
     --btn-bg: #ffd35c;
     --btn-ink: #1d1733;
+    --sale-text: #ff85bd;
+    --target-text: #5fe3c2;
+    --danger-text: #ff8a96;
   }
 }
 
@@ -184,6 +202,9 @@
   --danger: #d6284b;
   --btn-bg: #15132e;
   --btn-ink: #c6ff3d;
+  --sale-text: #cc006f;
+  --target-text: #00718c;
+  --danger-text: #c72546;
   --shadow-btn: 0 6px 18px -6px rgb(21 19 46 / 0.45);
   --tag-filter: drop-shadow(0 4px 10px rgb(224 0 122 / 0.35));
 }
@@ -198,13 +219,16 @@
   --line: #2b2952;
   --card-border: #2b2952;
   --sale: #ff2e93;
-  --on-sale: #ffffff;
+  --on-sale: #0d0c1d;
   --sale-soft: #3b1030;
   --target: #00e0ff;
   --target-soft: #0a2e3d;
   --danger: #ff5c7a;
   --btn-bg: #c6ff3d;
   --btn-ink: #0d0c1d;
+  --sale-text: #ff48a0;
+  --target-text: #00e0ff;
+  --danger-text: #ff5c7a;
   --shadow-btn: 0 0 22px rgb(198 255 61 / 0.35);
   --tag-filter: drop-shadow(0 0 10px rgb(255 46 147 / 0.65));
 }
@@ -220,13 +244,16 @@
     --line: #2b2952;
     --card-border: #2b2952;
     --sale: #ff2e93;
-    --on-sale: #ffffff;
+    --on-sale: #0d0c1d;
     --sale-soft: #3b1030;
     --target: #00e0ff;
     --target-soft: #0a2e3d;
     --danger: #ff5c7a;
     --btn-bg: #c6ff3d;
     --btn-ink: #0d0c1d;
+    --sale-text: #ff48a0;
+    --target-text: #00e0ff;
+    --danger-text: #ff5c7a;
     --shadow-btn: 0 0 22px rgb(198 255 61 / 0.35);
     --tag-filter: drop-shadow(0 0 10px rgb(255 46 147 / 0.65));
   }
@@ -261,6 +288,9 @@
   --danger: #a8322d;
   --btn-bg: #2e3a2b;
   --btn-ink: #f1ece0;
+  --sale-text: #a5455c;
+  --target-text: #4b6e46;
+  --danger-text: #a8322d;
   --shadow-card: 0 10px 24px -16px rgb(46 58 43 / 0.35);
 }
 
@@ -281,6 +311,9 @@
   --danger: #f08b7f;
   --btn-bg: #eee7d6;
   --btn-ink: #1c211a;
+  --sale-text: #e2879b;
+  --target-text: #9dc28f;
+  --danger-text: #f08b7f;
   --shadow-card: 0 10px 24px -16px rgb(0 0 0 / 0.6);
 }
 
@@ -302,6 +335,9 @@
     --danger: #f08b7f;
     --btn-bg: #eee7d6;
     --btn-ink: #1c211a;
+    --sale-text: #e2879b;
+    --target-text: #9dc28f;
+    --danger-text: #f08b7f;
     --shadow-card: 0 10px 24px -16px rgb(0 0 0 / 0.6);
   }
 }

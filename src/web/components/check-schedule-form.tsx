@@ -35,8 +35,8 @@ export function CheckScheduleForm({ current }: { current: ChecksPerDay }) {
           {pending ? "Guardando…" : "Guardar"}
         </button>
         <p aria-live="polite" className="text-sm">
-          {state.error && <span className="text-danger">{state.error}</span>}
-          {state.ok && <span className="text-target">{state.ok}</span>}
+          {state.error && <span className="text-danger-text">{state.error}</span>}
+          {state.ok && <span className="text-target-text">{state.ok}</span>}
         </p>
       </div>
     </form>

@@ -2,8 +2,8 @@ import type { PriceInsight } from "@/core/domain/price-insight";
 import { insightBadge, insightLines, type InsightTone } from "@/lib/price-insight-text";
 
 const TONE_CLASS: Record<InsightTone, string> = {
-  good: "text-target",
-  warn: "text-danger",
+  good: "text-target-text",
+  warn: "text-danger-text",
   neutral: "text-muted",
 };
 const TONE_ICON: Record<InsightTone, string> = { good: "✓", warn: "!", neutral: "·" };
@@ -44,7 +44,7 @@ export function PriceInsightNote({
 export function PriceInsightBadge({ insight }: { insight: PriceInsight | null }) {
   const badge = insightBadge(insight);
   if (!badge) return null;
-  const style = badge.tone === "warn" ? "bg-surface text-danger ring-1 ring-danger" : "bg-target-soft text-target";
+  const style = badge.tone === "warn" ? "bg-surface text-danger-text ring-1 ring-danger" : "bg-target-soft text-target-text";
   return (
     <span className={`absolute top-2 left-2 rounded-full px-2.5 py-0.5 text-xs font-medium ${style}`}>{badge.text}</span>
   );

@@ -26,7 +26,7 @@ export function EmailPreferenceForm({ email, enabled }: { email: string; enabled
         <button className="btn" disabled={pending}>
           {pending ? "Guardando…" : "Guardar cambios"}
         </button>
-        <p aria-live="polite" className="text-sm text-target">
+        <p aria-live="polite" className="text-sm text-target-text">
           {state.ok}
         </p>
       </div>

@@ -11,7 +11,7 @@ export function ForgotPasswordForm() {
   const submit = useSubmitWithoutReset(formAction);
   if (state.ok) {
     return (
-      <p role="status" className="text-sm text-target">
+      <p role="status" className="text-sm text-target-text">
         {state.ok}
       </p>
     );
@@ -38,7 +38,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
       <input type="hidden" name="token" value={token} />
       <PasswordField label="Contraseña nueva" isNew />
       {state.error && (
-        <p role="alert" className="text-sm text-danger">
+        <p role="alert" className="text-sm text-danger-text">
           {state.error}
         </p>
       )}

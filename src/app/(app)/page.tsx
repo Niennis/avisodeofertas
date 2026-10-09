@@ -14,6 +14,7 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
 
   return (
     <main className="flex flex-col gap-10">
+      <h1 className="sr-only">Mis productos</h1>
       {!user.emailNotifications && (
         <p className="-mb-4 rounded-(--radius-control) bg-target-soft px-4 py-3 text-sm">
           Tienes desactivados los avisos por email: las ofertas solo se muestran aquí.{" "}

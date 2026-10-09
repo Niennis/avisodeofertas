@@ -15,7 +15,7 @@ export function AlertOptions({
         <input type="checkbox" name="notifyOnSale" defaultChecked={notifyOnSale} className="size-4 accent-(--sale)" />
         Cuando la tienda lo rebaje
       </label>
-      <label className="flex items-center gap-2 whitespace-nowrap">
+      <label className="flex flex-wrap items-center gap-2">
         Cuando cueste $
         <input
           name="targetPrice"

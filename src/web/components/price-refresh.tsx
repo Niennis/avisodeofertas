@@ -13,8 +13,8 @@ export function RefreshPriceButton({ watchId }: { watchId: string }) {
         {pending ? "Consultando la tienda…" : "Actualizar precio"}
       </button>
       <p aria-live="polite" className="text-sm">
-        {state.error && <span className="text-danger">{state.error}</span>}
-        {state.ok && !pending && <span className="text-target">{state.ok}</span>}
+        {state.error && <span className="text-danger-text">{state.error}</span>}
+        {state.ok && !pending && <span className="text-target-text">{state.ok}</span>}
       </p>
     </form>
   );
@@ -30,8 +30,8 @@ export function CheckAllPricesButton() {
       </button>
       <p aria-live="polite" className="text-sm">
         {pending && <span className="text-muted">Puede tardar un par de minutos; no cierres esta página.</span>}
-        {!pending && state.error && <span className="text-danger">{state.error}</span>}
-        {!pending && state.ok && <span className="text-target">{state.ok}</span>}
+        {!pending && state.error && <span className="text-danger-text">{state.error}</span>}
+        {!pending && state.ok && <span className="text-target-text">{state.ok}</span>}
       </p>
     </form>
   );

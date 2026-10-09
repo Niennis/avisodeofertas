@@ -37,7 +37,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
-      <body className="min-h-full font-sans">{children}</body>
+      <body className="min-h-full font-sans">
+        <a href="#contenido" className="btn sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50">
+          Saltar al contenido principal
+        </a>
+        {children}
+      </body>
     </html>
   );
 }

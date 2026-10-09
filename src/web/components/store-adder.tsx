@@ -40,7 +40,7 @@ export function StoreAdder({ anchorWatchId, candidates }: { anchorWatchId: strin
             {adding ? "Leyendo precio…" : "Agregar tienda"}
           </button>
         </div>
-        <p aria-live="polite" className="min-h-5 text-sm text-danger">
+        <p aria-live="polite" className="min-h-5 text-sm text-danger-text">
           {addState.error}
         </p>
       </form>
@@ -66,7 +66,7 @@ export function StoreAdder({ anchorWatchId, candidates }: { anchorWatchId: strin
               {grouping ? "Agrupando…" : "Agrupar"}
             </button>
           </div>
-          <p aria-live="polite" className="min-h-5 text-sm text-danger">
+          <p aria-live="polite" className="min-h-5 text-sm text-danger-text">
             {groupState.error}
           </p>
         </form>

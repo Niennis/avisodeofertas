@@ -31,6 +31,12 @@ export default async function ResetPasswordPage({ searchParams }: PageProps<"/re
           Pide uno nuevo
         </Link>
       </p>
+      <p className="mt-2 text-sm text-muted">
+        ¿Recordaste tu contraseña?{" "}
+        <Link href="/ingresar" className="font-medium text-ink underline underline-offset-4">
+          Ingresar
+        </Link>
+      </p>
     </>
   );
 }

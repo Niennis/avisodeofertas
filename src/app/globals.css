@@ -24,6 +24,10 @@
   --color-target: var(--target);
   --color-target-soft: var(--target-soft);
   --color-danger: var(--danger);
+  /* Tonos para texto: cumplen contraste 4.5:1 sobre el fondo, las tarjetas y los fondos suaves. */
+  --color-sale-text: var(--sale-text);
+  --color-target-text: var(--target-text);
+  --color-danger-text: var(--danger-text);
   --font-sans: var(--font-body);
 }
 
