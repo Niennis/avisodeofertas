@@ -1,8 +1,9 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { DrizzleCheckScheduleRepository } from "@/adapters/persistence/drizzle/check-schedule-repository";
 import { createDatabase } from "@/adapters/persistence/drizzle/db";
 import { CheckScheduleService } from "@/core/application/use-cases/check-schedule";
-import { describeCheckHours, isCheckDue } from "@/core/domain/check-schedule";
+import { CHECK_HOURS, describeCheckHours, isCheckDue } from "@/core/domain/check-schedule";
 
 // Chile en horario de verano es UTC-3 (enero) y en invierno UTC-4 (julio).
 const summer = (hhmm: string, day = 15) => new Date(`2027-01-${day}T${hhmm}:00-03:00`);
@@ -74,5 +75,15 @@ describe("CheckScheduleService", () => {
     await service.setChecksPerDay("3");
     expect((await service.get()).checksPerDay).toBe(3);
     await expect(service.setChecksPerDay("7")).rejects.toThrow("Elige entre 1 y 4");
+  });
+});
+
+describe("workflow de GitHub Actions", () => {
+  it("el workflow llama en todos los horarios de revisión", () => {
+    const workflow = readFileSync(".github/workflows/revisar-precios.yml", "utf-8");
+    const hours = /cron: "\d+ ([\d,]+) \* \* \*"/.exec(workflow)![1].split(",").map(Number);
+    // Chile está en UTC-3 en verano y en UTC-4 en invierno.
+    const needed = Object.values(CHECK_HOURS).flatMap((slots) => slots.flatMap((h) => [(h + 3) % 24, (h + 4) % 24]));
+    expect(hours).toEqual(expect.arrayContaining([...new Set(needed)]));
   });
 });

@@ -2,7 +2,7 @@ import { isCheckDue, parseChecksPerDay, type CheckSchedule } from "@/core/domain
 import type { CheckScheduleRepository } from "../ports/check-schedule-repository";
 import type { Clock } from "../ports/clock";
 
-/** Cuántas veces al día se revisan los precios. El cron llama cada hora y aquí se decide si toca. */
+/** Cuántas veces al día se revisan los precios. El cron llama varias veces al día y aquí se decide si toca. */
 export class CheckScheduleService {
   constructor(
     private readonly schedule: CheckScheduleRepository,

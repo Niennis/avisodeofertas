@@ -4,7 +4,7 @@ import { getContainer } from "@/composition/container";
 export const maxDuration = 300;
 
 /**
- * Lo llama GitHub Actions cada hora (y Vercel Cron una vez al día, de respaldo).
+ * Lo llama GitHub Actions en las horas en que puede tocar revisar (y Vercel Cron una vez al día, de respaldo).
  * Solo revisa cuando toca según las revisiones al día elegidas en la administración.
  * Vercel envía `Authorization: Bearer <CRON_SECRET>` automáticamente.
  */

@@ -1,6 +1,6 @@
-# Llama cada hora al endpoint de revisión; la app decide si toca revisar según las
-# revisiones al día elegidas en la administración (el plan gratuito de Vercel solo
-# permite un cron al día, que queda de respaldo).
+# Llama al endpoint de revisión en las horas en que puede tocar una revisión; la app decide
+# si toca según las revisiones al día elegidas en la administración (el plan gratuito de
+# Vercel solo permite un cron al día, que queda de respaldo).
 # Configura en GitHub → Settings → Secrets and variables → Actions:
 #   APP_URL      → https://tu-app.vercel.app
 #   CRON_SECRET  → el mismo valor que en Vercel
@@ -8,7 +8,10 @@ name: Revisar precios
 
 on:
   schedule:
-    - cron: "5 * * * *" # cada hora, a los 5 minutos
+    # Horas UTC de los horarios de CHECK_HOURS (src/core/domain/check-schedule.ts), con Chile
+    # en UTC-3 (verano) y UTC-4 (invierno). Si cambias esos horarios, actualiza esta lista:
+    # el test "el workflow llama en todos los horarios de revisión" avisa si falta alguna.
+    - cron: "5 0,1,12,13,16,17,18,20,21,23 * * *"
   workflow_dispatch:
 
 jobs:
