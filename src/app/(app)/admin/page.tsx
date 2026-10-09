@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getContainer } from "@/composition/container";
+import { describeCheckHours } from "@/core/domain/check-schedule";
 import { PROBLEM_LABELS } from "@/core/domain/failures";
 import { formatDateTime } from "@/lib/format";
 import { resolveStoreAction } from "@/web/actions";
+import { CheckScheduleForm } from "@/web/components/check-schedule-form";
 import { CheckAllPricesButton } from "@/web/components/price-refresh";
 import { requireUser } from "@/web/session";
 
@@ -12,10 +14,10 @@ export const maxDuration = 300;
 
 export default async function AdminPage() {
   const user = await requireUser();
-  const { admin } = await getContainer();
+  const { admin, schedule } = await getContainer();
   // A cualquier otra cuenta se le responde "no encontrado", sin revelar que la página existe.
   if (!admin.isAdmin(user)) notFound();
-  const stores = await admin.failuresByStore();
+  const [stores, { checksPerDay }] = await Promise.all([admin.failuresByStore(), schedule.get()]);
 
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-col gap-6">
@@ -26,11 +28,13 @@ export default async function AdminPage() {
         <div>
           <h1 className="text-2xl font-bold">Revisión de precios</h1>
           <p className="mt-1 text-sm text-muted">
-            Se revisan todos los días a las 09:00 y a las 20:00. Con este botón se hace una revisión completa ahora
-            mismo, incluidos los emails de ofertas nuevas.
+            Se revisan todos los días a las {describeCheckHours(checksPerDay)} (hora de Chile). Con este botón se hace
+            una revisión completa ahora mismo, incluidos los emails de ofertas nuevas.
           </p>
         </div>
         <CheckAllPricesButton />
+        <hr className="border-line" />
+        <CheckScheduleForm current={checksPerDay} />
       </section>
 
       <div>

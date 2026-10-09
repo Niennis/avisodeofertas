@@ -250,6 +250,18 @@ export async function checkAllPricesAction(): Promise<FormState> {
   return { ok: `Listo: ${parts.join(", ")}.` };
 }
 
+/** Administración: cuántas veces al día se revisan los precios. */
+export async function updateChecksPerDayAction(_: FormState, form: FormData): Promise<FormState> {
+  return run(async () => {
+    const user = await requireUser();
+    const container = await getContainer();
+    if (!container.admin.isAdmin(user)) return { error: "No autorizado." };
+    await container.schedule.setChecksPerDay(form.get("checksPerDay"));
+    revalidatePath("/", "layout");
+    return { ok: "Guardado." };
+  });
+}
+
 export async function updateEmailNotificationsAction(_: FormState, form: FormData): Promise<FormState> {
   const user = await requireUser();
   const enabled = form.get("emailNotifications") === "on";

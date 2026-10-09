@@ -1,4 +1,6 @@
-# Segunda revisión diaria (el plan gratuito de Vercel permite un solo cron al día).
+# Llama cada hora al endpoint de revisión; la app decide si toca revisar según las
+# revisiones al día elegidas en la administración (el plan gratuito de Vercel solo
+# permite un cron al día, que queda de respaldo).
 # Configura en GitHub → Settings → Secrets and variables → Actions:
 #   APP_URL      → https://tu-app.vercel.app
 #   CRON_SECRET  → el mismo valor que en Vercel
@@ -6,7 +8,7 @@ name: Revisar precios
 
 on:
   schedule:
-    - cron: "0 23 * * *" # 20:00 en Chile (horario de verano: 19:00/20:00 según la época)
+    - cron: "5 * * * *" # cada hora, a los 5 minutos
   workflow_dispatch:
 
 jobs:

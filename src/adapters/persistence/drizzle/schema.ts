@@ -136,3 +136,10 @@ export const failureReports = pgTable(
   },
   (t) => [index("failure_reports_host_idx").on(t.host)],
 );
+
+/** Cuántas revisiones de precio al día se hacen; una sola fila, la edita quien administra. */
+export const checkSchedule = pgTable("check_schedule", {
+  id: integer("id").primaryKey().default(1),
+  checksPerDay: integer("checks_per_day").notNull().default(1),
+  lastCheckAt: timestamp("last_check_at", { withTimezone: true }),
+});

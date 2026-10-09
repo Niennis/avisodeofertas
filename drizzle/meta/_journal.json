@@ -64,6 +64,13 @@
       "when": 1790809190575,
       "tag": "0008_restock_alerts",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1791573691541,
+      "tag": "0009_check_schedule",
+      "breakpoints": true
     }
   ]
 }

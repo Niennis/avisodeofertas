@@ -19,7 +19,7 @@ Cada producto tiene sus propias condiciones, que se pueden combinar:
 - **Cuando cueste cierto monto o menos** (precio objetivo).
 - **Cuando vuelva a haber stock:** avisa cuando un producto (o un color que sigues) pasa de agotado a disponible. Funciona con las tiendas que informan el stock.
 
-Los precios se revisan dos veces al día: a las **09:00 y 20:00** de Chile en horario de verano (una hora antes en invierno). Cada persona recibe **un solo email** con todas sus novedades, y el asunto cambia según haya ofertas, productos que volvieron o ambas cosas.
+Los precios se revisan **una vez al día, a las 09:00** de Chile. Quien administra puede subirlo a 2, 3 o 4 revisiones (ver *Administración*). Cada persona recibe **un solo email** por revisión con todas sus novedades, y el asunto cambia según haya ofertas, productos que volvieron o ambas cosas.
 
 No repite avisos: mientras la oferta siga igual no vuelve a escribir. Solo avisa de nuevo si el precio baja todavía más, cuando empieza una oferta nueva o cada vez que un producto vuelve a tener stock.
 
@@ -60,6 +60,7 @@ Se puede instalar como app: en Android, desde Chrome (*⋮ → Instalar app*); e
 Quien administra la app (`ADMIN_EMAIL`, o `SMTP_USER` si no está definido) tiene la página `/admin`:
 
 - **Revisar ahora:** hace la revisión completa en el momento, igual que la programada (incluidos los emails), y muestra un resumen.
+- **Revisiones al día:** de 1 a 4 (09:00; 09:00 y 20:00; 09:00, 14:00 y 20:00; o 09:00, 13:00, 17:00 y 21:00, hora de Chile). Como llega como máximo un email por revisión, también limita los emails al día.
 - **Tiendas con problemas:** los enlaces que no se pudieron leer, agrupados por tienda (ver [Tiendas que no se pueden leer](#tiendas-que-no-se-pueden-leer)).
 
 ## Tiendas probadas
@@ -181,7 +182,7 @@ En PowerShell, define la variable antes: `$env:DATABASE_URL="pglite:.pglite-demo
 1. Sube el repositorio a GitHub e impórtalo en [Vercel](https://vercel.com).
 2. En *Settings → Environment Variables*, agrega las mismas variables de `.env.local`, con `APP_URL` apuntando a tu dominio de Vercel (se usa en los enlaces de los emails, incluido el de recuperar contraseña). `CRON_SECRET` es obligatorio: sin él, el endpoint rechaza las llamadas. Genera uno con `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`.
 3. Cada despliegue aplica primero las migraciones pendientes (`buildCommand` en `vercel.json`). Si una falla, el despliegue se detiene y queda funcionando la versión anterior. Ojo: los despliegues de prueba (*preview*) usan la misma base si comparten `DATABASE_URL`.
-4. `vercel.json` programa una revisión diaria a las 12:00 UTC (8:00 o 9:00 en Chile, según el horario). El plan gratuito de Vercel permite un cron al día; la segunda revisión, a las 23:00 UTC, la hace `.github/workflows/revisar-precios.yml` llamando al mismo endpoint. Configura en GitHub (*Settings → Secrets and variables → Actions → Repository secrets*) los secretos `APP_URL` y `CRON_SECRET`, con los mismos valores que en Vercel. Desde la pestaña *Actions* también se puede ejecutar a mano (*Run workflow*).
+4. `.github/workflows/revisar-precios.yml` llama al endpoint `/api/cron/revisar-precios` cada hora, y la app revisa solo cuando ya pasó uno de los horarios elegidos en la administración y todavía no se ha revisado. Así no importa si GitHub atrasa o se salta una llamada: la siguiente hace la revisión pendiente. `vercel.json` llama al mismo endpoint una vez al día (13:00 UTC), de respaldo; el plan gratuito de Vercel no permite más. Configura en GitHub (*Settings → Secrets and variables → Actions → Repository secrets*) los secretos `APP_URL` y `CRON_SECRET`, con los mismos valores que en Vercel. Para revisar fuera de horario, usa *Revisar ahora* en la administración (ejecutar el workflow a mano no revisa si no toca).
 
 ## Buenas prácticas con las tiendas
 

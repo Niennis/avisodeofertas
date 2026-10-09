@@ -1,4 +1,5 @@
 import { ConsoleNotifier, SmtpNotifier } from "@/adapters/notifications/smtp-notifier";
+import { DrizzleCheckScheduleRepository } from "@/adapters/persistence/drizzle/check-schedule-repository";
 import { createDatabase } from "@/adapters/persistence/drizzle/db";
 import { DrizzleFailureRepository } from "@/adapters/persistence/drizzle/failure-repository";
 import { DrizzleGroupRepository } from "@/adapters/persistence/drizzle/group-repository";
@@ -12,6 +13,7 @@ import { AccountService } from "@/core/application/use-cases/account";
 import { AdminService } from "@/core/application/use-cases/admin";
 import { AuthService } from "@/core/application/use-cases/auth";
 import { checkPrices } from "@/core/application/use-cases/check-prices";
+import { CheckScheduleService } from "@/core/application/use-cases/check-schedule";
 import { GroupService } from "@/core/application/use-cases/groups";
 import { WatchService } from "@/core/application/use-cases/watches";
 import { loadConfig, type AppConfig } from "./config";
@@ -48,6 +50,7 @@ export async function buildContainer(config: AppConfig = loadConfig()) {
     watches: watchService,
     groups: new GroupService({ groups, watches, watchService }),
     admin: new AdminService(failures, config.adminEmail),
+    schedule: new CheckScheduleService(new DrizzleCheckScheduleRepository(db), clock),
     checkPrices: (log?: (message: string) => void) =>
       checkPrices({
         products,
