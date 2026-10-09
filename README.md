@@ -73,6 +73,7 @@ Quien administra la app (`ADMIN_EMAIL`, o `SMTP_USER` si no está definido) tien
 | Farmacias Ahumada | Salesforce Commerce | `.sales .value` y `.strike-through.list .value` |
 | Salcobrand | Spree | "Precio Farmacia" y "Precio Internet" en `#product-price` |
 | Cruz Verde | API propia | `api.cruzverde.cl/product-service/products/detail/<id>` |
+| Steam | API propia | `store.steampowered.com/api/appdetails?appids=<id>&cc=cl` (precio en CLP) |
 
 **Otras tiendas:** cualquier tienda Shopify, WooCommerce o que publique datos estructurados (JSON-LD `Product` o metaetiquetas Open Graph de producto; por ejemplo Jumpseller o Tiendanube) debería funcionar sin cambios. Para probar una URL:
 

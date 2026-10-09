@@ -8,12 +8,13 @@ import { prestaShopCategoryReader } from "./prestashop-category";
 import { fetchHtml } from "./http-client";
 import type { HtmlExtractor, PlatformReader } from "./platform";
 import { shopifyReader } from "./shopify";
+import { steamReader } from "./steam";
 import { wooCommerceReader } from "./woocommerce";
 
 /**
  * Adaptador del puerto `PriceReader` que soporta varias plataformas.
  *
- * 1. Prueba los lectores por API cuya URL coincide (Cruz Verde, Shopify, WooCommerce, categorías PrestaShop).
+ * 1. Prueba los lectores por API cuya URL coincide (Cruz Verde, Steam, Shopify, WooCommerce, categorías PrestaShop).
  * 2. Si ninguno funciona, descarga el HTML y prueba los extractores en orden.
  *
  * Para soportar una tienda nueva basta con agregar un `PlatformReader` o un `HtmlExtractor`.
@@ -22,6 +23,7 @@ export class MultiPlatformPriceReader implements PriceReader {
   constructor(
     private readonly platforms: PlatformReader[] = [
       cruzVerdeReader,
+      steamReader,
       shopifyReader,
       wooCommerceReader,
       prestaShopCategoryReader,
@@ -37,8 +39,8 @@ export class MultiPlatformPriceReader implements PriceReader {
       try {
         return await platform.read(url);
       } catch (error) {
-        // Cruz Verde no entrega precios en el HTML: su error es el definitivo.
-        if (platform === cruzVerdeReader) throw error;
+        // Cruz Verde y Steam no entregan precios confiables en el HTML: su error es el definitivo.
+        if (platform === cruzVerdeReader || platform === steamReader) throw error;
         attempts.push(`${platform.name}: ${describe(error)}`);
       }
     }

@@ -40,6 +40,7 @@ const STORE_NAMES: Record<string, string> = {
   "modista.cl": "Modista",
   "lanamovil.cl": "Lana Móvil",
   "conamoramor.cl": "Con Amor Amor",
+  "store.steampowered.com": "Steam",
 };
 
 export function storeNameFromUrl(url: string): string {
