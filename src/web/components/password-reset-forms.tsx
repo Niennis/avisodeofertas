@@ -22,6 +22,12 @@ export function ForgotPasswordForm() {
         <span className="text-sm font-medium">Email</span>
         <input className="field" type="email" name="email" autoComplete="email" required />
       </label>
+      {/* Solo aparece si se superó el límite de pedidos desde esta conexión. */}
+      {state.error && (
+        <p role="alert" className="text-sm text-danger-text">
+          {state.error}
+        </p>
+      )}
       <button className="btn mt-2" disabled={pending}>
         {pending ? "Enviando…" : "Enviar enlace"}
       </button>

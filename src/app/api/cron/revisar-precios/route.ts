@@ -1,4 +1,6 @@
 import { getContainer } from "@/composition/container";
+import { constantTimeEqual } from "@/core/application/use-cases/auth";
+import { LONGEST_WINDOW_MS } from "@/web/rate-limit";
 
 // Revisar varias tiendas con pausas entre requests puede tardar más de lo habitual.
 export const maxDuration = 300;
@@ -11,9 +13,11 @@ export const maxDuration = 300;
 export async function GET(request: Request) {
   const container = await getContainer();
   const secret = container.config.cronSecret;
-  if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) {
+  if (!secret || !constantTimeEqual(request.headers.get("authorization") ?? "", `Bearer ${secret}`)) {
     return Response.json({ error: "No autorizado" }, { status: 401 });
   }
+  // Limpieza: las cuentas de pedidos por IP más antiguas que la ventana más larga ya no sirven.
+  await container.rateLimiter.prune(new Date(container.clock.now().getTime() - LONGEST_WINDOW_MS));
   if (!(await container.schedule.claimIfDue())) {
     return Response.json({ skipped: "Todavía no toca revisar." });
   }

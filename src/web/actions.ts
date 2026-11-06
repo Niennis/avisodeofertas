@@ -9,6 +9,7 @@ import type { WatchSettings } from "@/core/domain/watch";
 import type { Session } from "@/core/application/use-cases/auth";
 import type { AddResolution, AddWatchResult } from "@/core/application/use-cases/watches";
 import { getContainer } from "@/composition/container";
+import { enforceRateLimit } from "./rate-limit";
 import { endSession, requireUser, savePaletteCookie, saveSessionCookie } from "./session";
 import { safeNextPath } from "./shared-link";
 
@@ -55,6 +56,7 @@ function readSettings(form: FormData): WatchSettings {
 
 export async function registerAction(_: FormState, form: FormData): Promise<FormState> {
   const state = await run(async () => {
+    await enforceRateLimit("registro");
     const { auth } = await getContainer();
     const result = await auth.register({
       email: text(form, "email"),
@@ -75,6 +77,8 @@ export async function registerAction(_: FormState, form: FormData): Promise<Form
 
 export async function loginAction(_: FormState, form: FormData): Promise<FormState> {
   const state = await run(async () => {
+    // Además del bloqueo por cuenta (en AuthService): frena a quien prueba muchas cuentas distintas.
+    await enforceRateLimit("ingreso");
     const { auth } = await getContainer();
     await startSession(await auth.login({ email: text(form, "email"), password: text(form, "password") }));
   });
@@ -100,6 +104,8 @@ async function publicBaseUrl(): Promise<string | null> {
 }
 
 export async function requestPasswordResetAction(_: FormState, form: FormData): Promise<FormState> {
+  const limited = await run(() => enforceRateLimit("recuperar"));
+  if (limited.error) return limited;
   const email = text(form, "email");
   const baseUrl = await publicBaseUrl();
   const { auth } = await getContainer();

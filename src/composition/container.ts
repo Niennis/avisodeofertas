@@ -4,6 +4,7 @@ import { createDatabase } from "@/adapters/persistence/drizzle/db";
 import { DrizzleFailureRepository } from "@/adapters/persistence/drizzle/failure-repository";
 import { DrizzleGroupRepository } from "@/adapters/persistence/drizzle/group-repository";
 import { DrizzleProductRepository } from "@/adapters/persistence/drizzle/product-repository";
+import { DrizzleRateLimiter } from "@/adapters/persistence/drizzle/rate-limiter";
 import { DrizzlePasswordResetRepository, DrizzleSessionRepository, DrizzleUserRepository } from "@/adapters/persistence/drizzle/user-repository";
 import { DrizzleWatchRepository } from "@/adapters/persistence/drizzle/watch-repository";
 import { MultiPlatformPriceReader } from "@/adapters/price-readers/multi-platform-price-reader";
@@ -37,6 +38,8 @@ export async function buildContainer(config: AppConfig = loadConfig()) {
 
   return {
     config,
+    clock,
+    rateLimiter: new DrizzleRateLimiter(db),
     auth: new AuthService({
       users,
       sessions: new DrizzleSessionRepository(db),

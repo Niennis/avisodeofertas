@@ -33,6 +33,14 @@ export const sessions = pgTable(
   (t) => [index("sessions_user_idx").on(t.userId)],
 );
 
+/** Pedidos por IP en registro, ingreso y recuperación de contraseña (frena a los bots). */
+export const rateLimits = pgTable("rate_limits", {
+  /** Acción e IP, por ejemplo "registro:203.0.113.7". */
+  key: text("key").primaryKey(),
+  windowStart: timestamp("window_start", { withTimezone: true }).notNull(),
+  count: integer("count").notNull(),
+});
+
 /** Enlaces para crear una contraseña nueva. Como en las sesiones, se guarda solo el hash del token. */
 export const passwordResets = pgTable(
   "password_resets",
