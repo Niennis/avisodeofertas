@@ -89,7 +89,7 @@ export default async function ProductPage({ params }: PageProps<"/productos/[id]
         <h2 className="mb-4 font-bold">Historial de precio</h2>
         {isLine && (
           <p className="-mt-2 mb-4 text-sm text-muted">
-            Muestra el precio destacado de la línea: el color rebajado más barato o, si no hay rebajas, el más barato.
+            Muestra el precio destacado de la línea: la variante rebajada más barata o, si no hay rebajas, la más barata.
           </p>
         )}
         <PriceChart history={history} currency={product.currency} targetPrice={watch.targetPrice} />
@@ -98,7 +98,7 @@ export default async function ProductPage({ params }: PageProps<"/productos/[id]
       {isLine && (
         <section className="flex flex-col gap-3">
           <h2 className="font-bold">
-            Colores <span className="font-normal text-muted">({included.length} de {product.variants.length})</span>
+            Variantes <span className="font-normal text-muted">({included.length} de {product.variants.length})</span>
           </h2>
           <VariantPicker
             watchId={watch.id}

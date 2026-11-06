@@ -137,7 +137,7 @@ export class WatchService {
     const keys = new Set(includedKeys);
     const excluded = watch.product.variants.map((v) => v.key).filter((key) => !keys.has(key));
     if (excluded.length === watch.product.variants.length) {
-      throw new DomainError("Elige al menos un color.");
+      throw new DomainError("Elige al menos una variante.");
     }
     await this.deps.watches.setExcludedVariants(watchId, excluded);
     // Con otro conjunto de colores corresponde volver a evaluar desde cero.

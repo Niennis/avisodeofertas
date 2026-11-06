@@ -58,8 +58,8 @@ describe("evaluateAlertOptions", () => {
   });
 });
 
-it("resume los nombres de colores para el email", () => {
+it("resume los nombres de variantes para el email", () => {
   expect(variantsText(["Beige"])).toBe("Beige");
   expect(variantsText(["Beige", "Lila"])).toBe("Beige y Lila");
-  expect(variantsText(["A", "B", "C", "D", "E"])).toBe("A, B, C y 2 colores más");
+  expect(variantsText(["A", "B", "C", "D", "E"])).toBe("A, B, C y 2 variantes más");
 });

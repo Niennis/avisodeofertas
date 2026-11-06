@@ -7,7 +7,7 @@ Sigue productos de tiendas en línea y te avisa por email cuando bajan de precio
 ### Seguir productos
 
 - Pegas el enlace de un producto y la app lee su nombre, foto y precio en el momento.
-- Un solo enlace puede seguir **todos los colores de una lana** (ver *Líneas con varios colores*, más abajo).
+- Un solo enlace puede seguir **todas las variantes de un producto**, como los colores de una lana o las tallas de una prenda (ver *Productos con variantes*, más abajo).
 - El **mismo producto en varias tiendas** se junta en una sola tarjeta con el mejor precio y una comparación por tienda.
 - **Desde el celular (Android):** con la app instalada, en la página de la tienda tocas *Compartir → Ofertas* y se abre con el enlace ya pegado.
 
@@ -17,7 +17,7 @@ Cada producto tiene sus propias condiciones, que se pueden combinar:
 
 - **Cuando la tienda lo rebaje.**
 - **Cuando cueste cierto monto o menos** (precio objetivo).
-- **Cuando vuelva a haber stock:** avisa cuando un producto (o un color que sigues) pasa de agotado a disponible. Funciona con las tiendas que informan el stock.
+- **Cuando vuelva a haber stock:** avisa cuando un producto (o una variante que sigues) pasa de agotado a disponible. Funciona con las tiendas que informan el stock.
 
 Los precios se revisan **una vez al día, a las 09:00** de Chile. Quien administra puede subirlo a 2, 3 o 4 revisiones (ver *Administración*). Cada persona recibe **un solo email** por revisión con todas sus novedades, y el asunto cambia según haya ofertas, productos que volvieron o ambas cosas.
 
@@ -30,7 +30,7 @@ Con el historial de precios la app dice si conviene comprar:
 - **Rebaja real u oferta dudosa.** Compara el precio rebajado con el más bajo de los **30 días anteriores** a la rebaja (la misma regla que la directiva europea "Omnibus" exige a las tiendas). Si ya costaba eso o menos, la oferta es dudosa: típicamente, la tienda subió el precio antes de "rebajarlo".
 - **Precio más bajo en 90 días.** Se marca cuando el precio actual es menor que todos los anteriores (con al menos dos semanas de historial).
 
-Se ve como etiqueta en las tarjetas ("Mínimo en 90 días", "Oferta dudosa"), explicado en la ficha del producto y en el email de avisos. En las líneas con varios colores solo se muestra en la ficha, porque el historial es del precio destacado de la línea.
+Se ve como etiqueta en las tarjetas ("Mínimo en 90 días", "Oferta dudosa"), explicado en la ficha del producto y en el email de avisos. En los productos con variantes solo se muestra en la ficha, porque el historial es del precio destacado de la línea.
 
 ### La lista de productos
 
@@ -43,7 +43,7 @@ Se ve como etiqueta en las tarjetas ("Mínimo en 90 días", "Oferta dudosa"), ex
 - Precio actual, precio "antes", disponibilidad y análisis de la oferta.
 - **Historial de precio** en un gráfico, con el precio normal y el precio objetivo.
 - **Actualizar precio:** consulta la tienda en ese momento (sin enviar emails; si hay oferta, se avisa en la revisión siguiente). No vuelve a consultar si se revisó bien hace menos de 5 minutos.
-- Condiciones de aviso, colores que sigue (en las líneas), agregar otra tienda o agrupar con otro producto, y dejar de seguirlo.
+- Condiciones de aviso, variantes que sigue (en las líneas), agregar otra tienda o agrupar con otro producto, y dejar de seguirlo.
 
 ### Cuentas
 
@@ -84,12 +84,12 @@ pnpm try-url "https://tienda.cl/products/algo"
 
 **Mismo producto en varias tiendas:** en el detalle de un producto, "Agregar otra tienda" (pegando el enlace) o "Agrupar con uno que ya sigues" los junta en una sola tarjeta con el mejor precio y una comparación por tienda. Los avisos siguen funcionando por tienda. La búsqueda considera el nombre del grupo, el nombre en cada tienda y la marca, cuando la tienda la informa.
 
-**Líneas con varios colores:** un solo enlace puede seguir todos los colores de una lana.
+**Productos con variantes:** un solo enlace puede seguir todas las variantes de un producto (colores, tallas, medidas…).
 
-- En Shopify, el enlace del producto sin color elegido sigue todos sus colores. Con `?variant=...` sigue solo ese color.
+- En Shopify, el enlace del producto sin variante elegida sigue todas sus variantes. Con `?variant=...` sigue solo esa variante.
 - En PrestaShop (Reginella), el enlace de una categoría como `reginella.cl/2188-roma` sigue todos los productos de la línea.
-- En el detalle del producto se pueden desmarcar colores. Los colores nuevos que agregue la tienda quedan incluidos.
-- Se avisa cuando cualquier color incluido entra en oferta o baja del precio objetivo, y el email dice cuáles.
+- En el detalle del producto se pueden desmarcar variantes. Las variantes nuevas que agregue la tienda quedan incluidas.
+- Se avisa cuando cualquier variante incluida entra en oferta o baja del precio objetivo, y el email dice cuáles.
 
 ## Tiendas que no se pueden leer
 

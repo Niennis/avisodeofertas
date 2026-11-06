@@ -49,8 +49,8 @@ export function AddWatchForm({ sharedUrl = null }: { sharedUrl?: string | null }
         </button>
       </div>
       <p className="-mt-1 text-xs text-muted">
-        Para seguir todos los colores de una lana, pega el enlace del producto sin elegir color, o la página de la
-        línea completa (como reginella.cl/2188-roma).
+        Para seguir todas las variantes de un producto (colores, tallas, medidas…), pega el enlace sin elegir una, o la
+        página de la línea completa (como reginella.cl/2188-roma).
       </p>
       <AlertOptions />
       {conflict ? (
@@ -113,23 +113,23 @@ function ConflictNotice({
       ) : (
         <>
           <p>
-            Ya sigues {conflict.colors.length === 1 ? "1 color" : `${conflict.colors.length} colores`} de{" "}
+            Ya sigues {conflict.colors.length === 1 ? "1 variante" : `${conflict.colors.length} variantes`} de{" "}
             <strong>{conflict.name}</strong> por separado: {listNames(conflict.colors.map((c) => c.name))}. ¿Cómo quieres
             seguir la línea?
           </p>
           <div className="flex flex-wrap gap-2">
             <button name="resolution" value="line-all" className="btn px-3.5! py-1.5! text-sm" disabled={pending}>
-              Seguir todos los colores
+              Seguir todas las variantes
             </button>
             <button name="resolution" value="line-only-mine" className={option} disabled={pending}>
-              Solo {conflict.colors.length === 1 ? conflict.colors[0].name : "esos colores"}
+              Solo {conflict.colors.length === 1 ? conflict.colors[0].name : "esas variantes"}
             </button>
             <button type="button" onClick={onCancel} className={option}>
               Cancelar
             </button>
           </div>
           <p className="text-xs text-muted">
-            En ambos casos, las tarjetas de esos colores se reemplazan por una sola tarjeta de la línea.
+            En ambos casos, las tarjetas de esas variantes se reemplazan por una sola tarjeta de la línea.
           </p>
         </>
       )}

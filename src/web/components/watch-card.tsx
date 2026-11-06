@@ -101,12 +101,12 @@ function joinConditions(conditions: string[]): string {
   return `${rest.join(", ")}${comma ? "," : ""} o ${conditions.at(-1)}`;
 }
 
-/** "38 colores · 12 en oferta" o "3 de 38 colores · todos en oferta". */
+/** "38 variantes · 12 en oferta" o "3 de 38 variantes · todas en oferta". */
 function variantsLabel(total: number, included: { price: number; listPrice: number | null }[]): string {
-  const count = included.length === total ? `${total} colores` : `${included.length} de ${total} colores`;
+  const count = included.length === total ? `${total} variantes` : `${included.length} de ${total} variantes`;
   const onSale = included.filter((v) => isOnSale(v.price, v.listPrice)).length;
   if (onSale === 0) return count;
-  return `${count} · ${onSale === included.length ? "todos en oferta" : `${onSale} en oferta`}`;
+  return `${count} · ${onSale === included.length ? "todas en oferta" : `${onSale} en oferta`}`;
 }
 
 /** Tarjeta vacía para el estado de carga. */

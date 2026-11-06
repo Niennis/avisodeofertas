@@ -9,7 +9,7 @@ import { useSubmitWithoutReset } from "./use-submit";
 
 const collator = new Intl.Collator("es", { sensitivity: "base", numeric: true });
 
-/** Lista de colores de una línea: los marcados son los que se siguen. Primero los rebajados. */
+/** Lista de variantes de una línea (colores, tallas, medidas…): las marcadas son las que se siguen. Primero las rebajadas. */
 export function VariantPicker({
   watchId,
   variants,
@@ -40,7 +40,7 @@ export function VariantPicker({
     <form ref={formRef} onSubmit={submit} className="flex flex-col gap-4">
       <input type="hidden" name="watchId" value={watchId} />
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
-        <span className="text-muted">Te avisamos solo por los colores marcados.</span>
+        <span className="text-muted">Te avisamos solo por las variantes marcadas.</span>
         <button type="button" onClick={() => setAll(true)} className="font-medium underline underline-offset-4">
           Marcar todos
         </button>
@@ -101,7 +101,7 @@ export function VariantPicker({
 
       <div className="flex items-center gap-3">
         <button className="btn" disabled={pending}>
-          {pending ? "Guardando…" : "Guardar colores"}
+          {pending ? "Guardando…" : "Guardar variantes"}
         </button>
         <p aria-live="polite" className="text-sm">
           {state.error && <span className="text-danger-text">{state.error}</span>}

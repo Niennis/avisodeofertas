@@ -68,7 +68,7 @@ export class GroupService {
       };
       const result = await this.deps.watchService.add(userId, url, settings, "separate");
       if (result.status === "line-has-colors") {
-        throw new DomainError(`Ese enlace es la línea ${result.name}, con colores que ya sigues por separado. Agrégala desde el formulario principal.`);
+        throw new DomainError(`Ese enlace es la línea ${result.name}, con variantes que ya sigues por separado. Agrégala desde el formulario principal.`);
       }
       if (result.status !== "added") throw new DomainError("No pudimos agregar ese enlace.");
       otherId = result.watchId;

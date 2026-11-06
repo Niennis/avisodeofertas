@@ -143,9 +143,9 @@ export async function addWatchAction(_: FormState, form: FormData): Promise<Form
       case "added": {
         revalidatePath("/", "layout");
         if (result.replaced > 0) {
-          return { ok: `Listo: ahora sigues ${result.name} con ${colorsText(result.variantCount)} en una sola tarjeta.` };
+          return { ok: `Listo: ahora sigues ${result.name} con ${variantsCountText(result.variantCount)} en una sola tarjeta.` };
         }
-        if (result.variantCount > 1) return { ok: `Listo. Sigues ${colorsText(result.variantCount)} de ${result.name}.` };
+        if (result.variantCount > 1) return { ok: `Listo. Sigues ${variantsCountText(result.variantCount)} de ${result.name}.` };
         return {
           ok: user.emailNotifications
             ? "Listo. Te avisaremos por email cuando haya una oferta."
@@ -156,8 +156,9 @@ export async function addWatchAction(_: FormState, form: FormData): Promise<Form
   });
 }
 
-function colorsText(count: number): string {
-  return count === 1 ? "1 color" : `los ${count} colores`;
+/** "Variante" y no "color": según la tienda pueden ser colores, tallas, medidas, etc. */
+function variantsCountText(count: number): string {
+  return count === 1 ? "1 variante" : `las ${count} variantes`;
 }
 
 export async function updateWatchAction(_: FormState, form: FormData): Promise<FormState> {
@@ -189,7 +190,7 @@ export async function selectVariantsAction(_: FormState, form: FormData): Promis
     const keys = form.getAll("variant").map(String);
     await watches.selectVariants(user.id, text(form, "watchId"), keys);
     revalidatePath("/", "layout");
-    return { ok: `Listo: sigues ${keys.length === 1 ? "1 color" : `${keys.length} colores`}.` };
+    return { ok: `Listo: sigues ${keys.length === 1 ? "1 variante" : `${keys.length} variantes`}.` };
   });
 }
 

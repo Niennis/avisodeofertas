@@ -272,7 +272,7 @@ describe("flujo completo con base de datos", () => {
     const [listed] = await watches.list(ana.id);
     expect(listed.product.variants).toHaveLength(3);
     expect(listed.excludedVariants).toEqual(["lila"]);
-    await expect(watches.selectVariants(ana.id, watchId, [])).rejects.toThrow("al menos un color");
+    await expect(watches.selectVariants(ana.id, watchId, [])).rejects.toThrow("al menos una variante");
   });
 
   describe("evita tarjetas repetidas entre una línea y sus colores", () => {

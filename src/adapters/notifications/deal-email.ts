@@ -7,14 +7,14 @@ function escapeHtml(text: string): string {
   return text.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 }
 
-/** "Agua Marina, Beige y 10 colores más" */
+/** "Agua Marina, Beige y 10 variantes más" */
 export function variantsText(names: string[], shown = 3): string {
   if (names.length === 0) return "";
   if (names.length <= shown) {
     return names.length === 1 ? names[0] : `${names.slice(0, -1).join(", ")} y ${names.at(-1)}`;
   }
   const rest = names.length - shown;
-  return `${names.slice(0, shown).join(", ")} y ${rest} ${rest === 1 ? "color" : "colores"} más`;
+  return `${names.slice(0, shown).join(", ")} y ${rest} ${rest === 1 ? "variante" : "variantes"} más`;
 }
 
 const isRestockOnly = (deal: Deal) => deal.reasons.every((r) => r === "back_in_stock");
