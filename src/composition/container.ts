@@ -15,6 +15,7 @@ import { AdminService } from "@/core/application/use-cases/admin";
 import { AuthService } from "@/core/application/use-cases/auth";
 import { checkPrices } from "@/core/application/use-cases/check-prices";
 import { CheckScheduleService } from "@/core/application/use-cases/check-schedule";
+import { DemoService } from "@/core/application/use-cases/demo";
 import { GroupService } from "@/core/application/use-cases/groups";
 import { WatchService } from "@/core/application/use-cases/watches";
 import { loadConfig, type AppConfig } from "./config";
@@ -34,15 +35,17 @@ export async function buildContainer(config: AppConfig = loadConfig()) {
   const priceReader = new MultiPlatformPriceReader();
   const notifier = config.smtp ? new SmtpNotifier(config.smtp, config.appUrl) : new ConsoleNotifier();
   const clock = systemClock;
-  const watchService = new WatchService({ products, failures, watches, groups, priceReader, clock });
+  const watchService = new WatchService({ products, failures, watches, groups, priceReader, clock, users });
+  const sessions = new DrizzleSessionRepository(db);
 
   return {
     config,
     clock,
     rateLimiter: new DrizzleRateLimiter(db),
+    demo: new DemoService({ users, sessions, watches, groups, products, clock, templateEmail: config.demoTemplateEmail }),
     auth: new AuthService({
       users,
-      sessions: new DrizzleSessionRepository(db),
+      sessions,
       resets: new DrizzlePasswordResetRepository(db),
       hasher: new ScryptPasswordHasher(),
       notifier,

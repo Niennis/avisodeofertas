@@ -13,6 +13,8 @@ export const RATE_LIMITS = {
   registro: { limit: 10, windowMs: 60 * MINUTE },
   ingreso: { limit: 20, windowMs: 15 * MINUTE },
   recuperar: { limit: 5, windowMs: 60 * MINUTE },
+  // Cada demo copia los productos de ejemplo: más que esto por hora no es alguien revisando el portafolio.
+  demo: { limit: 5, windowMs: 60 * MINUTE },
 } as const;
 
 export type LimitedAction = keyof typeof RATE_LIMITS;

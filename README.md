@@ -50,6 +50,16 @@ Se ve como etiqueta en las tarjetas ("Mínimo en 90 días", "Oferta dudosa"), ex
 - Cuentas separadas, protegidas con un **código de invitación**, para compartirla con conocidos.
 - **Recuperar contraseña** por email: enlace de un solo uso que vence en una hora. No revela si un email tiene cuenta, envía como máximo un enlace por minuto y, al cambiar la contraseña, cierra las demás sesiones.
 - En *Mi cuenta*: activar o desactivar los emails y elegir la **paleta de colores** (Sobria, Caramelo, Eléctrico o Jardín). En cualquier página se puede cambiar entre modo claro y oscuro.
+- **Seguridad:** tras 5 contraseñas incorrectas seguidas, el ingreso a esa cuenta se bloquea 15 minutos. Además hay un límite de pedidos por conexión en el registro, el ingreso, la recuperación de contraseña y la demo. La cuenta de administración se confirma con un enlace al email antes de poder usarla.
+
+### Probar la demo
+
+Para que cualquiera pueda conocer la app sin código de invitación (por ejemplo, desde un portafolio), *Ingresar* y *Crear cuenta* muestran el botón **Probar la demo**:
+
+- Cada visitante recibe **su propia cuenta temporal**, con una copia de los productos (y grupos) de una cuenta plantilla. Lo que hace uno no afecta a los demás.
+- Puede agregar, editar y eliminar productos, con un máximo de **5 productos más** que los de ejemplo.
+- Los emails están desactivados y la cuenta no tiene contraseña: se borra al salir o a las **24 horas** (el cron elimina las vencidas).
+- Para activarla, crea una cuenta normal con los productos que quieras mostrar y pon su email en `DEMO_TEMPLATE_EMAIL`. Sin esa variable, el botón no aparece.
 
 ### Instalable en el celular (PWA)
 

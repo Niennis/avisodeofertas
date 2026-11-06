@@ -5,6 +5,15 @@ export interface User {
   emailNotifications: boolean;
   palette: Palette;
   createdAt: Date;
+  /** Solo en las cuentas de demostración: cuándo se borra la cuenta. `null` en las cuentas normales. */
+  demoExpiresAt: Date | null;
+  /** Máximo de productos que puede seguir; `null` = sin límite (las cuentas demo tienen uno). */
+  watchLimit: number | null;
+}
+
+/** Las cuentas demo no tienen contraseña ni email real: se crean con "Probar la demo" y duran un día. */
+export function isDemo(user: Pick<User, "demoExpiresAt">): boolean {
+  return user.demoExpiresAt != null;
 }
 
 /** Paletas de colores disponibles para la interfaz. La primera es la predeterminada. */

@@ -5,12 +5,13 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { after } from "next/server";
 import { DomainError } from "@/core/domain/errors";
+import { isDemo } from "@/core/domain/user";
 import type { WatchSettings } from "@/core/domain/watch";
 import type { Session } from "@/core/application/use-cases/auth";
 import type { AddResolution, AddWatchResult } from "@/core/application/use-cases/watches";
 import { getContainer } from "@/composition/container";
 import { enforceRateLimit } from "./rate-limit";
-import { endSession, requireUser, savePaletteCookie, saveSessionCookie } from "./session";
+import { currentUser, endSession, requireUser, savePaletteCookie, saveSessionCookie } from "./session";
 import { safeNextPath } from "./shared-link";
 
 export interface FormState {
@@ -128,8 +129,22 @@ export async function resetPasswordAction(_: FormState, form: FormData): Promise
 }
 
 export async function logoutAction() {
+  const user = await currentUser();
   await endSession();
+  // A una cuenta demo no se puede volver a entrar: se borra al salir.
+  if (user && isDemo(user)) await (await getContainer()).demo.end(user.id);
   redirect("/ingresar");
+}
+
+/** "Probar la demo": crea una cuenta temporal con productos de ejemplo y entra con ella. */
+export async function startDemoAction(): Promise<FormState> {
+  const state = await run(async () => {
+    await enforceRateLimit("demo");
+    const { demo } = await getContainer();
+    await startSession(await demo.start());
+  });
+  if (state.error) return state;
+  redirect("/");
 }
 
 export async function addWatchAction(_: FormState, form: FormData): Promise<FormState> {
@@ -289,6 +304,7 @@ export async function updateChecksPerDayAction(_: FormState, form: FormData): Pr
 
 export async function updateEmailNotificationsAction(_: FormState, form: FormData): Promise<FormState> {
   const user = await requireUser();
+  if (isDemo(user)) return { error: "En la demo los emails están desactivados." };
   const enabled = form.get("emailNotifications") === "on";
   const { account } = await getContainer();
   await account.setEmailNotifications(user.id, enabled);

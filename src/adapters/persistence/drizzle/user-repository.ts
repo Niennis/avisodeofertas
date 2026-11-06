@@ -1,5 +1,5 @@
 import { createHash, randomBytes } from "node:crypto";
-import { and, desc, eq, gt, sql } from "drizzle-orm";
+import { and, desc, eq, gt, isNotNull, lte, sql } from "drizzle-orm";
 import type { PasswordResetRepository } from "@/core/application/ports/password-reset-repository";
 import type { SessionRepository } from "@/core/application/ports/session-repository";
 import type { UserRepository, UserWithPassword } from "@/core/application/ports/user-repository";
@@ -13,7 +13,12 @@ const publicColumns = {
   emailNotifications: users.emailNotifications,
   palette: users.palette,
   createdAt: users.createdAt,
+  demoExpiresAt: users.demoExpiresAt,
+  watchLimit: users.watchLimit,
 };
+
+/** Hash que ninguna contraseña cumple: a las cuentas demo no se puede entrar con contraseña. */
+const NO_PASSWORD = "sin-contraseña";
 
 export class DrizzleUserRepository implements UserRepository {
   constructor(private readonly db: Database) {}
@@ -61,6 +66,33 @@ export class DrizzleUserRepository implements UserRepository {
 
   async clearFailedLogins(userId: string): Promise<void> {
     await this.db.update(users).set({ failedLogins: 0, lockedUntil: null }).where(eq(users.id, userId));
+  }
+
+  async createDemo(input: { email: string; expiresAt: Date; watchLimit: number }): Promise<User> {
+    const [row] = await this.db
+      .insert(users)
+      .values({
+        email: input.email,
+        passwordHash: NO_PASSWORD,
+        emailNotifications: false,
+        demoExpiresAt: input.expiresAt,
+        watchLimit: input.watchLimit,
+      })
+      .returning(publicColumns);
+    return row;
+  }
+
+  async deleteDemo(userId: string): Promise<void> {
+    // La condición evita borrar una cuenta normal por error.
+    await this.db.delete(users).where(and(eq(users.id, userId), isNotNull(users.demoExpiresAt)));
+  }
+
+  async deleteExpiredDemos(now: Date): Promise<number> {
+    const deleted = await this.db
+      .delete(users)
+      .where(and(isNotNull(users.demoExpiresAt), lte(users.demoExpiresAt, now)))
+      .returning({ id: users.id });
+    return deleted.length;
   }
 }
 

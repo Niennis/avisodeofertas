@@ -10,6 +10,7 @@ const envSchema = z.object({
   APP_URL: optional,
   INVITE_CODE: optional,
   ADMIN_EMAIL: optional,
+  DEMO_TEMPLATE_EMAIL: optional,
   CRON_SECRET: optional,
   SMTP_HOST: optional,
   SMTP_PORT: z.coerce.number().int().default(587),
@@ -41,6 +42,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env) {
     // Quien administra la app: por defecto, la cuenta que envía los emails.
     adminEmail: e.ADMIN_EMAIL ?? e.SMTP_USER,
     cronSecret: e.CRON_SECRET,
+    // Cuenta cuyos productos se copian en cada demo; sin ella no aparece "Probar la demo".
+    demoTemplateEmail: e.DEMO_TEMPLATE_EMAIL,
     smtp,
   };
 }

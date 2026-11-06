@@ -9,6 +9,7 @@ import type { PriceReader } from "../ports/price-reader";
 import type { ProductRepository } from "../ports/product-repository";
 import type { FailureRepository } from "../ports/failure-repository";
 import type { GroupRepository } from "../ports/group-repository";
+import type { UserRepository } from "../ports/user-repository";
 import type { WatchRepository } from "../ports/watch-repository";
 import { dissolveIfTooSmall } from "./groups";
 import { refreshPriceInsight } from "./price-insight";
@@ -25,6 +26,8 @@ export interface WatchDeps {
   groups: GroupRepository;
   priceReader: PriceReader;
   clock: Clock;
+  /** Para respetar el máximo de productos de la cuenta (las cuentas demo tienen uno). */
+  users: Pick<UserRepository, "findById">;
 }
 
 /** Qué hacer cuando el enlace choca con algo que ya sigue. */
@@ -82,6 +85,14 @@ export class WatchService {
         return { status: "included-in-line", watchId: line.id, name: inLine.lineName, colorName: inLine.colorName };
       }
       return { status: "color-in-line", ...inLine };
+    }
+
+    // Antes de consultar la tienda: así quien llegó al límite no hace que la app lea más enlaces.
+    const limit = (await this.deps.users.findById(userId))?.watchLimit;
+    if (limit != null && mine.length >= limit) {
+      throw new DomainError(
+        "Llegaste al máximo de productos de la demo. Elimina alguno para agregar otro.",
+      );
     }
 
     let product = await products.findByUrl(url);

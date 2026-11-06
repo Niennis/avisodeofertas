@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AppearancePicker } from "@/web/components/appearance-picker";
 import { EmailPreferenceForm } from "@/web/components/email-preference-form";
+import { isDemo } from "@/core/domain/user";
 import { requireUser } from "@/web/session";
 
 export default async function AccountPage() {
@@ -21,7 +22,14 @@ export default async function AccountPage() {
       </section>
       <section className="card p-5">
         <h2 className="mb-4 font-bold">Avisos por email</h2>
-        <EmailPreferenceForm email={user.email} enabled={user.emailNotifications} />
+        {isDemo(user) ? (
+          <p className="text-sm text-muted">
+            En la demo los emails están desactivados. Con una cuenta normal recibes como máximo un email por revisión,
+            con todas las ofertas nuevas juntas.
+          </p>
+        ) : (
+          <EmailPreferenceForm email={user.email} enabled={user.emailNotifications} />
+        )}
       </section>
     </main>
   );

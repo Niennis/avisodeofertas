@@ -3,11 +3,13 @@ import { redirect } from "next/navigation";
 import { getContainer } from "@/composition/container";
 import { registerAction } from "@/web/actions";
 import { AuthForm } from "@/web/components/auth-form";
+import { DemoButton } from "@/web/components/demo-button";
+import { DEMO_EXTRA_PRODUCTS, DEMO_HOURS } from "@/core/application/use-cases/demo";
 import { currentUser } from "@/web/session";
 
 export default async function RegisterPage() {
   if (await currentUser()) redirect("/");
-  const { config } = await getContainer();
+  const { config, demo } = await getContainer();
   return (
     <>
       <h1 className="mb-2 text-2xl font-bold">Crear cuenta</h1>
@@ -24,6 +26,8 @@ export default async function RegisterPage() {
           Ingresa
         </Link>
       </p>
+      {/* Con código de invitación, quien no lo tiene puede probar la app igual. */}
+      {demo.enabled && <DemoButton extraProducts={DEMO_EXTRA_PRODUCTS} hours={DEMO_HOURS} />}
     </>
   );
 }

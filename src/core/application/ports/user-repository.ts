@@ -20,4 +20,10 @@ export interface UserRepository {
   /** Bloquea el ingreso hasta esa fecha y reinicia el contador. */
   lockLogin(userId: string, until: Date): Promise<void>;
   clearFailedLogins(userId: string): Promise<void>;
+  /** Cuenta de demostración: sin contraseña, sin emails y con fecha de borrado. */
+  createDemo(input: { email: string; expiresAt: Date; watchLimit: number }): Promise<User>;
+  /** Borra una cuenta demo (nunca una normal), con sus productos, grupos y sesiones. */
+  deleteDemo(userId: string): Promise<void>;
+  /** Borra las cuentas demo vencidas; devuelve cuántas. */
+  deleteExpiredDemos(now: Date): Promise<number>;
 }

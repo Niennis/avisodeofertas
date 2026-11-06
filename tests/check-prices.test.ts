@@ -77,7 +77,15 @@ describe("flujo completo con base de datos", () => {
     });
     const groupRepo = new DrizzleGroupRepository(db);
     failureRepo = new DrizzleFailureRepository(db);
-    watches = new WatchService({ products, failures: failureRepo, watches: watchRepo, groups: groupRepo, priceReader: reader, clock });
+    watches = new WatchService({
+      products,
+      failures: failureRepo,
+      watches: watchRepo,
+      groups: groupRepo,
+      priceReader: reader,
+      clock,
+      users: new DrizzleUserRepository(db),
+    });
     groups = new GroupService({ groups: groupRepo, watches: watchRepo, watchService: watches });
     run = () =>
       checkPrices({ products, failures: failureRepo, watches: watchRepo, priceReader: reader, notifier, clock, adminEmail: "admin@correo.cl" });

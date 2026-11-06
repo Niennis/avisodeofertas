@@ -1,5 +1,5 @@
 import { DomainError } from "@/core/domain/errors";
-import { normalizeEmail, type User } from "@/core/domain/user";
+import { isDemo, normalizeEmail, type User } from "@/core/domain/user";
 import type { Clock } from "../ports/clock";
 import type { Notifier } from "../ports/notifier";
 import type { PasswordHasher } from "../ports/password-hasher";
@@ -99,7 +99,8 @@ export class AuthService {
   async requestPasswordReset(input: { email: string; baseUrl: string }): Promise<void> {
     const { users, resets, clock } = this.deps;
     const user = await users.findByEmailWithPassword(normalizeEmail(input.email));
-    if (!user) return;
+    // Las cuentas demo no tienen email real ni contraseña.
+    if (!user || isDemo(user)) return;
     const now = clock.now();
     const last = await resets.lastCreatedAt(user.id);
     if (last && now.getTime() - last.getTime() < RESET_COOLDOWN_MS) return;

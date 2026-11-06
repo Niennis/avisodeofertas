@@ -18,6 +18,8 @@ export async function GET(request: Request) {
   }
   // Limpieza: las cuentas de pedidos por IP más antiguas que la ventana más larga ya no sirven.
   await container.rateLimiter.prune(new Date(container.clock.now().getTime() - LONGEST_WINDOW_MS));
+  // Las cuentas demo vencidas se borran, con sus productos de prueba.
+  await container.demo.cleanup();
   if (!(await container.schedule.claimIfDue())) {
     return Response.json({ skipped: "Todavía no toca revisar." });
   }

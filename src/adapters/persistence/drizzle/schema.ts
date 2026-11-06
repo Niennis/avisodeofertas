@@ -18,6 +18,10 @@ export const users = pgTable("users", {
   /** Intentos de ingreso fallidos seguidos; al llegar al límite se bloquea un rato (ver `AuthService.login`). */
   failedLogins: integer("failed_logins").notNull().default(0),
   lockedUntil: timestamp("locked_until", { withTimezone: true }),
+  /** Cuentas de demostración: cuándo se borran (el cron las elimina). `null` en las cuentas normales. */
+  demoExpiresAt: timestamp("demo_expires_at", { withTimezone: true }),
+  /** Máximo de productos que puede seguir; `null` = sin límite. */
+  watchLimit: integer("watch_limit"),
 });
 
 export const sessions = pgTable(

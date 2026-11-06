@@ -29,6 +29,8 @@ function setup({ inviteCode = null as string | null } = {}) {
         createdAt: now,
         failedLogins: 0,
         lockedUntil: null,
+        demoExpiresAt: null,
+        watchLimit: null,
       };
       users.set(user.id, user);
       return user;
@@ -39,6 +41,12 @@ function setup({ inviteCode = null as string | null } = {}) {
     incrementFailedLogins: async (id) => ++users.get(id)!.failedLogins,
     lockLogin: async (id, until) => void Object.assign(users.get(id)!, { failedLogins: 0, lockedUntil: until }),
     clearFailedLogins: async (id) => void Object.assign(users.get(id)!, { failedLogins: 0, lockedUntil: null }),
+    // Las cuentas demo se prueban con la base de datos real, en demo.test.ts.
+    createDemo: async () => {
+      throw new Error("no se usa en estas pruebas");
+    },
+    deleteDemo: async () => {},
+    deleteExpiredDemos: async () => 0,
   };
   const sessions: SessionRepository = {
     create: async (userId) => `sesion-${userId}-${++next}`,
