@@ -3,6 +3,9 @@ import { problemFromStatus } from "@/adapters/price-readers/http-client";
 import { MultiPlatformPriceReader } from "@/adapters/price-readers/multi-platform-price-reader";
 import { PriceUnavailableError } from "@/core/domain/errors";
 
+// Las tiendas de estas pruebas son inventadas: se responde con una IP pública cualquiera sin consultar el DNS.
+vi.mock("node:dns/promises", () => ({ lookup: vi.fn(async () => [{ address: "93.184.216.34", family: 4 }]) }));
+
 /** Simula la respuesta de la tienda sin salir a internet. */
 function stubFetch(respond: () => Promise<Response> | Response) {
   vi.stubGlobal("fetch", vi.fn(async () => respond()));

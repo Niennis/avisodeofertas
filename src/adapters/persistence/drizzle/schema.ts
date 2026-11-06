@@ -15,6 +15,9 @@ export const users = pgTable("users", {
   emailNotifications: boolean("email_notifications").notNull().default(true),
   palette: text("palette", { enum: PALETTES }).notNull().default(DEFAULT_PALETTE),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  /** Intentos de ingreso fallidos seguidos; al llegar al límite se bloquea un rato (ver `AuthService.login`). */
+  failedLogins: integer("failed_logins").notNull().default(0),
+  lockedUntil: timestamp("locked_until", { withTimezone: true }),
 });
 
 export const sessions = pgTable(

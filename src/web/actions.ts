@@ -56,11 +56,20 @@ function readSettings(form: FormData): WatchSettings {
 export async function registerAction(_: FormState, form: FormData): Promise<FormState> {
   const state = await run(async () => {
     const { auth } = await getContainer();
-    await startSession(
-      await auth.register({ email: text(form, "email"), password: text(form, "password"), inviteCode: text(form, "inviteCode") }),
-    );
+    const result = await auth.register({
+      email: text(form, "email"),
+      password: text(form, "password"),
+      inviteCode: text(form, "inviteCode"),
+      baseUrl: await publicBaseUrl(),
+    });
+    if (result.status === "check-email") {
+      return {
+        ok: "Te enviamos un email con un enlace para crear tu contraseña y entrar. Revisa también la carpeta de spam.",
+      };
+    }
+    await startSession(result.session);
   });
-  if (state.error) return state;
+  if (state.error || state.ok) return state;
   redirect("/");
 }
 
@@ -73,14 +82,21 @@ export async function loginAction(_: FormState, form: FormData): Promise<FormSta
   redirect(safeNextPath(form.get("siguiente")) ?? "/");
 }
 
-/** Dirección pública de la app para armar enlaces: `APP_URL`, o la de esta misma request. */
-async function publicBaseUrl(): Promise<string> {
+/**
+ * Dirección pública de la app para armar enlaces: `APP_URL` (o el dominio de producción de Vercel).
+ * Solo en desarrollo se usa la de esta misma request: en producción esos headers los puede inventar
+ * quien hace la request, y el enlace de recuperación terminaría apuntando a su sitio.
+ */
+async function publicBaseUrl(): Promise<string | null> {
   const { config } = await getContainer();
   if (config.appUrl) return config.appUrl;
+  if (process.env.NODE_ENV === "production") {
+    console.error("Falta APP_URL: no se pueden armar enlaces para los emails.");
+    return null;
+  }
   const h = await headers();
-  const host = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3000";
-  const protocol = h.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
-  return `${protocol}://${host}`;
+  const host = h.get("host") ?? "localhost:3000";
+  return `http://${host}`;
 }
 
 export async function requestPasswordResetAction(_: FormState, form: FormData): Promise<FormState> {
@@ -88,7 +104,9 @@ export async function requestPasswordResetAction(_: FormState, form: FormData): 
   const baseUrl = await publicBaseUrl();
   const { auth } = await getContainer();
   // Se envía después de responder: así la respuesta tarda lo mismo exista o no la cuenta.
-  after(() => auth.requestPasswordReset({ email, baseUrl }).catch((error) => console.error("No se pudo enviar el enlace de recuperación", error)));
+  if (baseUrl) {
+    after(() => auth.requestPasswordReset({ email, baseUrl }).catch((error) => console.error("No se pudo enviar el enlace de recuperación", error)));
+  }
   return {
     ok: "Si hay una cuenta con ese email, te enviamos un enlace para crear una contraseña nueva. Revisa también la carpeta de spam.",
   };

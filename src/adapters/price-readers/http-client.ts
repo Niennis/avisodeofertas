@@ -1,4 +1,5 @@
 import { PriceUnavailableError, type PriceProblem } from "@/core/domain/errors";
+import { assertPublicUrl } from "./public-address";
 
 const USER_AGENT =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36";
@@ -25,22 +26,47 @@ export function problemFromStatus(status: number): PriceProblem {
 /** Páginas de verificación anti-bots (Cloudflare y similares). */
 const CHALLENGE_PAGE = /cf-chl|challenge-platform|Just a moment\.\.\.|Attention Required|captcha/i;
 
+const MAX_REDIRECTS = 5;
+const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308]);
+
+/**
+ * Pide la URL siguiendo las redirecciones a mano: así se revisa cada destino con `assertPublicUrl`
+ * (una tienda, o alguien que se haga pasar por una, podría redirigir a una dirección interna).
+ */
 async function request(url: string, init: RequestInit = {}): Promise<Response> {
+  const signal = AbortSignal.timeout(TIMEOUT_MS);
+  let current = new URL(url);
+  let currentInit = init;
   let response: Response;
-  try {
-    response = await fetch(url, {
-      ...init,
-      redirect: "follow",
-      signal: AbortSignal.timeout(TIMEOUT_MS),
-      headers: {
-        "User-Agent": USER_AGENT,
-        "Accept-Language": "es-CL,es;q=0.9",
-        ...init.headers,
-      },
-    });
-  } catch (error) {
-    const reason = error instanceof Error && error.name === "TimeoutError" ? "no respondió a tiempo" : "no se pudo contactar";
-    throw new PriceUnavailableError("unavailable", `${new URL(url).hostname} ${reason}`);
+  for (let redirects = 0; ; redirects++) {
+    await assertPublicUrl(current);
+    try {
+      response = await fetch(current, {
+        ...currentInit,
+        redirect: "manual",
+        signal,
+        headers: {
+          "User-Agent": USER_AGENT,
+          "Accept-Language": "es-CL,es;q=0.9",
+          ...currentInit.headers,
+        },
+      });
+    } catch (error) {
+      const reason = error instanceof Error && error.name === "TimeoutError" ? "no respondió a tiempo" : "no se pudo contactar";
+      throw new PriceUnavailableError("unavailable", `${current.hostname} ${reason}`);
+    }
+    const location = response.headers.get("location");
+    if (!REDIRECT_STATUSES.has(response.status) || !location) break;
+    if (redirects >= MAX_REDIRECTS) {
+      throw new PriceUnavailableError("unavailable", `${current.hostname} redirige demasiadas veces`);
+    }
+    await response.body?.cancel();
+    current = new URL(location, current);
+    // Igual que los navegadores: tras un 303 (o un 301/302 de un POST) se sigue con GET y sin cuerpo.
+    const method = (currentInit.method ?? "GET").toUpperCase();
+    if (response.status === 303 || ((response.status === 301 || response.status === 302) && method === "POST")) {
+      currentInit = { ...currentInit, method: "GET", body: undefined };
+    }
   }
   if (!response.ok) {
     // Una verificación anti-bots responde 403 o 503: si es eso, es un bloqueo, no una caída.

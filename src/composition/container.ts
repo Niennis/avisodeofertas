@@ -45,6 +45,7 @@ export async function buildContainer(config: AppConfig = loadConfig()) {
       notifier,
       clock,
       inviteCode: config.inviteCode,
+      adminEmail: config.adminEmail,
     }),
     account: new AccountService(users),
     watches: watchService,

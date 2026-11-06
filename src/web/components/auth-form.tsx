@@ -21,6 +21,14 @@ export function AuthForm({
 }) {
   const [state, formAction, pending] = useActionState(action, {});
   const submit = useSubmitWithoutReset(formAction);
+  // Al crear la cuenta de administración no se entra de inmediato: hay que confirmar con el enlace del email.
+  if (state.ok) {
+    return (
+      <p role="status" className="text-sm text-target-text">
+        {state.ok}
+      </p>
+    );
+  }
   return (
     <form onSubmit={submit} className="flex flex-col gap-4">
       {next && <input type="hidden" name="siguiente" value={next} />}

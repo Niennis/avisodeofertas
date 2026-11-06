@@ -73,6 +73,7 @@ describe("flujo completo con base de datos", () => {
       notifier,
       clock,
       inviteCode: "lanas2026",
+      adminEmail: "admin@correo.cl",
     });
     const groupRepo = new DrizzleGroupRepository(db);
     failureRepo = new DrizzleFailureRepository(db);
@@ -90,8 +91,9 @@ describe("flujo completo con base de datos", () => {
   }
 
   async function newUser(email: string) {
-    const session = await auth.register({ email, password: "clave-segura", inviteCode: "lanas2026" });
-    return (await auth.currentUser(session.token))!;
+    const result = await auth.register({ email, password: "clave-segura", inviteCode: "lanas2026", baseUrl: "https://app.cl" });
+    if (result.status !== "signed-in") throw new Error(`Se esperaba "signed-in" y llegó "${result.status}"`);
+    return (await auth.currentUser(result.session.token))!;
   }
 
   it("registro, login y rechazo de código de invitación incorrecto", async () => {
@@ -100,10 +102,24 @@ describe("flujo completo con base de datos", () => {
     expect((await auth.currentUser(session.token))?.email).toBe("ana@correo.cl");
     await expect(auth.login({ email: "ana@correo.cl", password: "otra-clave" })).rejects.toThrow("incorrectos");
     await expect(
-      auth.register({ email: "b@correo.cl", password: "clave-segura", inviteCode: "x" }),
+      auth.register({ email: "b@correo.cl", password: "clave-segura", inviteCode: "x", baseUrl: "https://app.cl" }),
     ).rejects.toThrow("invitación");
     await auth.logout(session.token);
     expect(await auth.currentUser(session.token)).toBeNull();
+  });
+
+  it("bloquea el ingreso tras 5 contraseñas incorrectas (contador guardado en la base de datos)", async () => {
+    await newUser("ana@correo.cl");
+    for (let i = 0; i < 5; i++) {
+      await expect(auth.login({ email: "ana@correo.cl", password: "otra-clave" })).rejects.toThrow("incorrectos");
+    }
+    await expect(auth.login({ email: "ana@correo.cl", password: "clave-segura" })).rejects.toThrow("demasiados intentos");
+  });
+
+  it("la cuenta de administración se confirma con el enlace del email antes de poder entrar", async () => {
+    const result = await auth.register({ email: "admin@correo.cl", password: "clave-segura", inviteCode: "lanas2026", baseUrl: "https://app.cl" });
+    expect(result.status).toBe("check-email");
+    await expect(auth.login({ email: "admin@correo.cl", password: "clave-segura" })).rejects.toThrow("incorrectos");
   });
 
   describe("recuperar contraseña", () => {

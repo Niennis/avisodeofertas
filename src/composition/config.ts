@@ -16,6 +16,8 @@ const envSchema = z.object({
   SMTP_USER: optional,
   SMTP_PASS: optional,
   MAIL_FROM: optional,
+  /** Dominio de producción que Vercel define solo (sin https://). Respaldo si falta APP_URL. */
+  VERCEL_PROJECT_PRODUCTION_URL: optional,
 });
 
 export type AppConfig = ReturnType<typeof loadConfig>;
@@ -33,7 +35,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env) {
       : null;
   return {
     databaseUrl: e.DATABASE_URL,
-    appUrl: e.APP_URL,
+    // Nunca se toma de los headers de la request en producción: así nadie puede hacer que los enlaces de los emails apunten a otro sitio.
+    appUrl: e.APP_URL ?? (e.VERCEL_PROJECT_PRODUCTION_URL ? `https://${e.VERCEL_PROJECT_PRODUCTION_URL}` : null),
     inviteCode: e.INVITE_CODE,
     // Quien administra la app: por defecto, la cuenta que envía los emails.
     adminEmail: e.ADMIN_EMAIL ?? e.SMTP_USER,

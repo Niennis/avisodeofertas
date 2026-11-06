@@ -71,6 +71,13 @@
       "when": 1791573691541,
       "tag": "0009_check_schedule",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1793976741412,
+      "tag": "0010_login_lockout",
+      "breakpoints": true
     }
   ]
 }

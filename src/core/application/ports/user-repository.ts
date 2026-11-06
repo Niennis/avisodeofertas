@@ -2,6 +2,10 @@ import type { Palette, User } from "@/core/domain/user";
 
 export interface UserWithPassword extends User {
   passwordHash: string;
+  /** Intentos fallidos seguidos desde el último ingreso correcto. */
+  failedLogins: number;
+  /** Hasta cuándo no se puede ingresar por demasiados intentos fallidos. */
+  lockedUntil: Date | null;
 }
 
 export interface UserRepository {
@@ -11,4 +15,9 @@ export interface UserRepository {
   setPasswordHash(userId: string, passwordHash: string): Promise<void>;
   setEmailNotifications(userId: string, enabled: boolean): Promise<void>;
   setPalette(userId: string, palette: Palette): Promise<void>;
+  /** Suma un intento fallido y devuelve cuántos lleva seguidos. */
+  incrementFailedLogins(userId: string): Promise<number>;
+  /** Bloquea el ingreso hasta esa fecha y reinicia el contador. */
+  lockLogin(userId: string, until: Date): Promise<void>;
+  clearFailedLogins(userId: string): Promise<void>;
 }

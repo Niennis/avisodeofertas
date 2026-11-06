@@ -1,5 +1,5 @@
 import { createHash, randomBytes } from "node:crypto";
-import { and, desc, eq, gt } from "drizzle-orm";
+import { and, desc, eq, gt, sql } from "drizzle-orm";
 import type { PasswordResetRepository } from "@/core/application/ports/password-reset-repository";
 import type { SessionRepository } from "@/core/application/ports/session-repository";
 import type { UserRepository, UserWithPassword } from "@/core/application/ports/user-repository";
@@ -43,6 +43,24 @@ export class DrizzleUserRepository implements UserRepository {
 
   async setPalette(userId: string, palette: Palette): Promise<void> {
     await this.db.update(users).set({ palette }).where(eq(users.id, userId));
+  }
+
+  async incrementFailedLogins(userId: string): Promise<number> {
+    // Se suma en la base de datos para no perder intentos que llegan al mismo tiempo.
+    const [row] = await this.db
+      .update(users)
+      .set({ failedLogins: sql`${users.failedLogins} + 1` })
+      .where(eq(users.id, userId))
+      .returning({ failedLogins: users.failedLogins });
+    return row?.failedLogins ?? 0;
+  }
+
+  async lockLogin(userId: string, until: Date): Promise<void> {
+    await this.db.update(users).set({ failedLogins: 0, lockedUntil: until }).where(eq(users.id, userId));
+  }
+
+  async clearFailedLogins(userId: string): Promise<void> {
+    await this.db.update(users).set({ failedLogins: 0, lockedUntil: null }).where(eq(users.id, userId));
   }
 }
 
